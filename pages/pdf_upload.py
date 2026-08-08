@@ -90,12 +90,12 @@ if uploaded_pdf is not None:
                 scan_results = []
                 for item in parsed_items:
                     match = find_best_match(item['raw_text'], products_list)
-                    best_match_id = match['product_id'] if match else None
-                    scan_results.append({
-                        "raw_text": item['raw_text'],
-                        "quantity": item['quantity'],
-                        "best_match_id": best_match_id
-                    })
+                    if match and match['product_id']:
+                        scan_results.append({
+                            "raw_text": item['raw_text'],
+                            "quantity": item['quantity'],
+                            "best_match_id": match['product_id']
+                        })
                     
                 st.session_state.scan_results = scan_results
                 st.success("Analyse erfolgreich abgeschlossen!")
