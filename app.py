@@ -223,6 +223,28 @@ with tab_cart:
         st.table(pd.DataFrame(cart_rows))
         st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
         
+        # Recommendations integration
+        from src.recommender import Recommender
+        recommender = Recommender()
+        cart_ids = list(st.session_state.cart.keys())
+        
+        predicted_grade, recs = recommender.get_recommendations(cart_ids, top_n=5)
+        
+        st.markdown("---")
+        st.markdown(f"### 🎯 Prognostizierte Klassenstufe: **{predicted_grade}**")
+        
+        if recs:
+            st.markdown("#### 💡 Empfohlene Ergänzungen für dieses Schuljahr:")
+            for rec in recs:
+                col_name, col_price, col_add = st.columns([5, 2, 2])
+                col_name.write(f"**{rec['name']}** ({rec['brand']})")
+                col_price.write(f"{rec['price']:.2f} €")
+                if col_add.button("➕ Hinzufügen", key=f"add_rec_mobile_{rec['product_id']}"):
+                    st.session_state.cart[rec['product_id']] = st.session_state.cart.get(rec['product_id'], 0) + 1
+                    st.toast(f"{rec['name']} wurde hinzugefügt!")
+                    st.rerun()
+                    
+        st.markdown("---")
         if st.button("🗑️ Warenkorb leeren"):
             st.session_state.cart = {}
             st.rerun()

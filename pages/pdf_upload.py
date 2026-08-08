@@ -157,3 +157,57 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
         st.session_state.scan_results = []
         st.rerun()
+
+# --- WARENKORB & EMPFEHLUNGEN (Desktop) ---
+st.markdown("---")
+st.markdown("### 🛒 Ihr aktueller Warenkorb")
+
+if "cart" not in st.session_state or not st.session_state.cart:
+    st.write("Der Warenkorb ist leer.")
+else:
+    cart_rows = []
+    grand_total = 0.0
+    
+    for prod_id, qty in list(st.session_state.cart.items()):
+        prod_row = products_df[products_df['id'] == prod_id]
+        if not prod_row.empty:
+            row = prod_row.iloc[0]
+            total = row['price'] * qty
+            grand_total += total
+            cart_rows.append({
+                "ID": prod_id,
+                "Name": row['name'],
+                "Marke": row['brand'],
+                "Menge": qty,
+                "Einzelpreis": f"{row['price']:.2f} €",
+                "Gesamtpreis": f"{total:.2f} €"
+            })
+            
+    st.table(pd.DataFrame(cart_rows))
+    st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
+    
+    # Recommendations integration
+    from src.recommender import Recommender
+    recommender = Recommender()
+    cart_ids = list(st.session_state.cart.keys())
+    
+    predicted_grade, recs = recommender.get_recommendations(cart_ids, top_n=5)
+    
+    st.markdown("---")
+    st.markdown(f"### 🎯 Prognostizierte Klassenstufe: **{predicted_grade}**")
+    
+    if recs:
+        st.markdown("#### 💡 Empfohlene Ergänzungen für dieses Schuljahr:")
+        for rec in recs:
+            col_name, col_price, col_add = st.columns([5, 2, 2])
+            col_name.write(f"**{rec['name']}** ({rec['brand']})")
+            col_price.write(f"{rec['price']:.2f} €")
+            if col_add.button("➕ Hinzufügen", key=f"add_rec_pdf_{rec['product_id']}"):
+                st.session_state.cart[rec['product_id']] = st.session_state.cart.get(rec['product_id'], 0) + 1
+                st.toast(f"{rec['name']} wurde hinzugefügt!")
+                st.rerun()
+                
+    st.markdown("---")
+    if st.button("🗑️ Warenkorb leeren", key="clear_cart_pdf"):
+        st.session_state.cart = {}
+        st.rerun()
