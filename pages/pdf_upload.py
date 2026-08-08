@@ -30,7 +30,7 @@ st.markdown("""
 <style>
     .stApp {
         background-color: #0e1117;
-        color: #e0e0e0;
+        color: #ffffff;
     }
     .main-header {
         font-size: 2.2rem;
@@ -39,6 +39,16 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0.5rem;
+    }
+    /* Ensure text in tables/warenkorb is white */
+    div[data-testid="stTable"] td, div[data-testid="stTable"] th, table td, table th {
+        color: #ffffff !important;
+    }
+    /* Ensure text in Erkannter Text columns is white */
+    .erkannter-text {
+        color: #ffffff !important;
+        font-size: 14px;
+        padding-top: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -49,52 +59,106 @@ st.write("Laden Sie die digitale PDF-Materialliste der Schule hoch, um Artikel a
 # Load env key for Gemini API
 gemini_key = os.environ.get("GEMINI_API_KEY", "")
 
-uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"])
+def reset_pdf_state():
+    if "analyzed" in st.session_state:
+        st.session_state.analyzed = False
+    if "raw_text" in st.session_state:
+        del st.session_state["raw_text"]
+    st.session_state.scan_results = []
+
+uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"], on_change=reset_pdf_state)
 
 if uploaded_pdf is not None:
-    st.info(f"📄 **Datei geladen:** {uploaded_pdf.name}")
+    if "raw_text" not in st.session_state:
+        try:
+            st.session_state.raw_text = extract_text_from_pdf(uploaded_pdf.getvalue())
+        except Exception as e:
+            st.session_state.raw_text = ""
+            st.error(f"Fehler beim Extrahieren des Texts: {e}")
+            
+    # Inject clipboard copy script and custom element
+    import urllib.parse
+    encoded_text = urllib.parse.quote(st.session_state.raw_text)
     
-    if st.button("PDF analysieren", type="primary"):
-        pdf_bytes = uploaded_pdf.getvalue()
-        
-        with st.spinner("PDF wird ausgelesen..."):
-            try:
-                products_list = load_products("data/products.csv")
-                parsed_items = []
-                
-                # First, try to extract text locally (for digital, editable PDFs)
-                raw_text = extract_text_from_pdf(pdf_bytes)
-                
-                if raw_text.strip():
-                    # Digital PDF with selectable text: parse locally (free & instant)
-                    st.text_area("Extrahierter Rohtext (Lokale Analyse):", raw_text, height=150)
-                    parsed_items = parse_ocr_text(raw_text)
-                else:
-                    # Scanned PDF (image-only): fallback to Gemini OCR if key is set
-                    if gemini_key:
-                        st.info("Scanner erkennt gescanntes PDF. Starte AI-gestützte Texterkennung...")
-                        raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
-                        import json
-                        parsed_items = json.loads(raw_json)
-                    else:
-                        st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Für gescannte PDFs (Bild-PDFs) wird ein konfigurierter Gemini API-Schlüssel benötigt.")
-                
-                # Match catalog products
-                scan_results = []
-                for item in parsed_items:
-                    match = find_best_match(item['raw_text'], products_list)
-                    if match and match['product_id']:
-                        scan_results.append({
-                            "raw_text": item['raw_text'],
-                            "quantity": item['quantity'],
-                            "best_match_id": match['product_id']
-                        })
+    js_code = f"""
+    <div id="copy-box" style="cursor: pointer; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+        <span>📄 Datei geladen: <strong>{uploaded_pdf.name}</strong></span>
+        <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des Rohtexts</span>
+    </div>
+    <script>
+    document.getElementById('copy-box').addEventListener('click', () => {{
+        const text = decodeURIComponent("{encoded_text}");
+        if (navigator.clipboard && navigator.clipboard.writeText) {{
+            navigator.clipboard.writeText(text).then(() => {{
+                alert('Rohtext wurde in die Zwischenablage kopiert!');
+            }}).catch(err => {{
+                fallbackCopy(text);
+            }});
+        }} else {{
+            fallbackCopy(text);
+        }}
+    }});
+    function fallbackCopy(text) {{
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {{
+            document.execCommand('copy');
+            alert('Rohtext wurde in die Zwischenablage kopiert!');
+        }} catch (err) {{
+            alert('Kopieren fehlgeschlagen.');
+        }}
+        document.body.removeChild(textArea);
+    }}
+    </script>
+    """
+    import streamlit.components.v1 as components
+    components.html(js_code, height=55)
+    
+    # Show analyze button only if not yet analyzed
+    if not st.session_state.get("analyzed", False):
+        if st.button("PDF analysieren", type="primary"):
+            st.session_state.analyzed = True
+            pdf_bytes = uploaded_pdf.getvalue()
+            
+            with st.spinner("PDF wird ausgelesen..."):
+                try:
+                    products_list = load_products("data/products.csv")
+                    parsed_items = []
                     
-                st.session_state.scan_results = scan_results
-                st.success("Analyse erfolgreich abgeschlossen!")
-                
-            except Exception as e:
-                st.error(f"Fehler bei der Analyse: {e}")
+                    raw_text = st.session_state.raw_text
+                    
+                    if raw_text.strip():
+                        # Extrahierter Rohtext (Lokale Analyse) is not displayed anymore
+                        parsed_items = parse_ocr_text(raw_text)
+                    else:
+                        # Scanned PDF (image-only): fallback to Gemini OCR if key is set
+                        if gemini_key:
+                            st.info("Scanner erkennt gescanntes PDF. Starte AI-gestützte Texterkennung...")
+                            raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
+                            import json
+                            parsed_items = json.loads(raw_json)
+                        else:
+                            st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Für gescannte PDFs (Bild-PDFs) wird ein konfigurierter Gemini API-Schlüssel benötigt.")
+                    
+                    # Match catalog products
+                    scan_results = []
+                    for item in parsed_items:
+                        match = find_best_match(item['raw_text'], products_list)
+                        if match and match['product_id']:
+                            scan_results.append({
+                                "raw_text": item['raw_text'],
+                                "quantity": item['quantity'],
+                                "best_match_id": match['product_id']
+                            })
+                        
+                    st.session_state.scan_results = scan_results
+                    st.success("Analyse erfolgreich abgeschlossen!")
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.error(f"Fehler bei der Analyse: {e}")
 
 # If we have scan results, show verification UI
 if "scan_results" in st.session_state and st.session_state.scan_results:
@@ -114,7 +178,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
     
     for i, res in enumerate(st.session_state.scan_results):
         c_text, c_match, c_qty = st.columns([3, 4, 2])
-        c_text.text(res['raw_text'])
+        c_text.markdown(f"<div class='erkannter-text'>{res['raw_text']}</div>", unsafe_allow_html=True)
         
         default_id = res['best_match_id'] if res['best_match_id'] in options else 0
         
@@ -151,6 +215,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
                     
             st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
             st.session_state.scan_results = []
+            st.session_state.analyzed = False
             st.rerun()
     with col_add:
         with st.popover("➕ Neuer Artikel", use_container_width=True):
