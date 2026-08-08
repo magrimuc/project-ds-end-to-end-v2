@@ -24,7 +24,7 @@ from src.matcher import load_products, find_best_match
 
 # Page Configuration
 st.set_page_config(
-    page_title="Schulbedarf OCR & Bestell-Manager",
+    page_title="Schulbedarf Bestell-Manager",
     page_icon="🎒",
     layout="wide"
 )
@@ -237,7 +237,7 @@ with tab_cart:
         predicted_grade, recs = recommender.get_recommendations(cart_ids, top_n=5)
         
         st.markdown("---")
-        st.markdown(f"### 🎯 Prognostizierte Klassenstufe: **{predicted_grade}**")
+        st.markdown(f"### 🎯 ermittelte Klassenstufe: **{predicted_grade}**")
         
         if recs:
             st.markdown("#### 💡 Empfohlene Ergänzungen für dieses Schuljahr:")
