@@ -184,6 +184,8 @@ st.markdown("### 🛒 Ihr aktueller Warenkorb")
 if "cart" not in st.session_state or not st.session_state.cart:
     st.write("Der Warenkorb ist leer.")
 else:
+    import pandas as pd
+    products_df = pd.read_csv("data/products.csv")
     cart_rows = []
     grand_total = 0.0
     
