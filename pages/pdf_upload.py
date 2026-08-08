@@ -2,6 +2,16 @@ import streamlit as st
 import os
 import sys
 
+# Load local .env file
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            if line.strip() and not line.startswith("#"):
+                parts = line.strip().split("=", 1)
+                if len(parts) == 2:
+                    k, v = parts
+                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
+
 # Ensure root directory is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

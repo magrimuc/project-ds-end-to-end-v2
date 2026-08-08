@@ -4,6 +4,16 @@ import sys
 import pandas as pd
 from PIL import Image
 
+# Load local .env file
+if os.path.exists(".env"):
+    with open(".env") as f:
+        for line in f:
+            if line.strip() and not line.startswith("#"):
+                parts = line.strip().split("=", 1)
+                if len(parts) == 2:
+                    k, v = parts
+                    os.environ[k.strip()] = v.strip().strip('"').strip("'")
+
 # Ensure root directory is in sys.path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -103,7 +113,7 @@ with tab_scan:
         
         with col_img:
             image = Image.open(uploaded_file)
-            st.image(image, caption="Erfasstes Foto", use_column_width=True)
+            st.image(image, caption="Erfasstes Foto", use_container_width=True)
             
         with col_act:
             st.markdown("### 2. Analyse starten")

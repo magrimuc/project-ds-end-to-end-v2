@@ -1,0 +1,16 @@
+# Local environment files
+.env
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Data & serialized models
+src/*.pkl
+src/model.pkl
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+*.log
