@@ -62,19 +62,22 @@ if uploaded_pdf is not None:
                 products_list = load_products("data/products.csv")
                 parsed_items = []
                 
-                if gemini_key:
-                    # Call Gemini to process the PDF
-                    raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
-                    import json
-                    parsed_items = json.loads(raw_json)
+                # First, try to extract text locally (for digital, editable PDFs)
+                raw_text = extract_text_from_pdf(pdf_bytes)
+                
+                if raw_text.strip():
+                    # Digital PDF with selectable text: parse locally (free & instant)
+                    st.text_area("Extrahierter Rohtext (Lokale Analyse):", raw_text, height=150)
+                    parsed_items = parse_ocr_text(raw_text)
                 else:
-                    # Parse local editable PDF text
-                    raw_text = extract_text_from_pdf(pdf_bytes)
-                    if not raw_text.strip():
-                        st.warning("⚠️ Kein Text gefunden. Handelt es sich um ein gescanntes PDF? Bitte nutze den AI-gestützten Modus.")
+                    # Scanned PDF (image-only): fallback to Gemini OCR if key is set
+                    if gemini_key:
+                        st.info("Scanner erkennt gescanntes PDF. Starte AI-gestützte Texterkennung...")
+                        raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
+                        import json
+                        parsed_items = json.loads(raw_json)
                     else:
-                        st.text_area("Extrahierter Rohtext:", raw_text, height=150)
-                        parsed_items = parse_ocr_text(raw_text)
+                        st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Für gescannte PDFs (Bild-PDFs) wird ein konfigurierter Gemini API-Schlüssel benötigt.")
                 
                 # Match catalog products
                 scan_results = []
