@@ -43,28 +43,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Navigation link back to mobile app if needed
-if st.button("⬅ Zurück zur Hauptseite (Foto-Upload)"):
-    st.switch_page("app.py")
-
 st.markdown('<div class="main-header">📄 PDF-Bestellzettel Analysieren</div>', unsafe_allow_html=True)
 st.write("Laden Sie die digitale PDF-Materialliste der Schule hoch, um Artikel automatisch zu extrahieren.")
 
 # Load env key for Gemini API
 gemini_key = os.environ.get("GEMINI_API_KEY", "")
-
-# Sidebar OCR mode configuration
-with st.sidebar:
-    st.markdown("### ⚙️ OCR-Konfiguration")
-    ocr_mode = st.radio(
-        "Erkennungs-Modus:",
-        ["Lokales PDF-Text-Parsing", "AI-gestützt (Gemini API)"],
-        help="Lokales Text-Parsing liest Text direkt aus editierbaren PDFs. Gemini OCR verarbeitet auch eingescannte Bild-PDFs perfekt."
-    )
-    if ocr_mode == "AI-gestützt (Gemini API)":
-        gemini_key_input = st.text_input("Gemini API-Schlüssel:", value=gemini_key, type="password")
-        if gemini_key_input:
-            gemini_key = gemini_key_input
 
 uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"])
 
@@ -79,14 +62,11 @@ if uploaded_pdf is not None:
                 products_list = load_products("data/products.csv")
                 parsed_items = []
                 
-                if ocr_mode == "AI-gestützt (Gemini API)":
-                    if not gemini_key:
-                        st.error("Bitte einen Gemini API-Schlüssel in der Seitenleiste eingeben!")
-                    else:
-                        # Call Gemini to process the PDF
-                        raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
-                        import json
-                        parsed_items = json.loads(raw_json)
+                if gemini_key:
+                    # Call Gemini to process the PDF
+                    raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
+                    import json
+                    parsed_items = json.loads(raw_json)
                 else:
                     # Parse local editable PDF text
                     raw_text = extract_text_from_pdf(pdf_bytes)

@@ -72,26 +72,8 @@ if not is_mobile and not st.session_state.override_device_detect:
 st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Optimiert für Mobilgeräte. Fotografieren Sie eine Materialliste ab, um sie direkt zu digitalisieren.</div>', unsafe_allow_html=True)
 
-if not is_mobile:
-    st.info("💻 **Desktop-Gerät erkannt:** Sie wurden automatisch zur PDF-Upload-Seite weitergeleitet. Sie können diese Ansicht manuell nutzen.")
-    if st.button("📄 Zur PDF-Upload Seite wechseln"):
-        st.switch_page("pages/pdf_upload.py")
-
 # Load env key for Gemini API
 gemini_key = os.environ.get("GEMINI_API_KEY", "")
-
-# Sidebar OCR mode configuration
-with st.sidebar:
-    st.markdown("### ⚙️ OCR-Konfiguration")
-    ocr_mode = st.radio(
-        "Erkennungs-Modus:",
-        ["Kamera-OCR (Lokal)", "AI-gestützt (Gemini API)"],
-        help="Lokal nutzt Tesseract OCR auf Ihrem System. Gemini OCR erkennt auch handgeschriebene Zettel perfekt."
-    )
-    if ocr_mode == "AI-gestützt (Gemini API)":
-        gemini_key_input = st.text_input("Gemini API-Schlüssel:", value=gemini_key, type="password")
-        if gemini_key_input:
-            gemini_key = gemini_key_input
 
 # Tabs
 tab_scan, tab_cart, tab_catalog = st.tabs(["📸 Foto scannen", "🛒 Warenkorb", "📦 Produktkatalog"])
@@ -125,13 +107,10 @@ with tab_scan:
                         products_list = load_products("data/products.csv")
                         parsed_items = []
                         
-                        if ocr_mode == "AI-gestützt (Gemini API)":
-                            if not gemini_key:
-                                st.error("Bitte einen Gemini API-Schlüssel in der Seitenleiste eingeben!")
-                            else:
-                                raw_json = run_gemini_ocr(doc_bytes, uploaded_file.type if hasattr(uploaded_file, 'type') else "image/png", gemini_key)
-                                import json
-                                parsed_items = json.loads(raw_json)
+                        if gemini_key:
+                            raw_json = run_gemini_ocr(doc_bytes, uploaded_file.type if hasattr(uploaded_file, 'type') else "image/png", gemini_key)
+                            import json
+                            parsed_items = json.loads(raw_json)
                         else:
                             # Local Tesseract OCR
                             raw_text = run_local_ocr(doc_bytes)
