@@ -18,7 +18,7 @@ if "scan_results" not in st.session_state:
     st.session_state.scan_results = []
 
 # App Header
-st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner HORST</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Optimiert für Mobilgeräte. Fotografieren Sie eine Materialliste ab, um sie direkt zu digitalisieren.</div>', unsafe_allow_html=True)
 
 # Load env key for Gemini API
