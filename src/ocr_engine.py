@@ -16,17 +16,37 @@ def run_local_ocr(image_bytes: bytes) -> str:
 
     try:
         # Determine tesseract command/executable path
-        tesseract_cmd = "tesseract"
-        if not shutil.which(tesseract_cmd):
+        tesseract_cmd = os.environ.get("TESSERACT_PATH", "tesseract")
+        
+        if tesseract_cmd == "tesseract" and not shutil.which(tesseract_cmd):
             # Check common default paths on Windows
+            user_profile = os.environ.get("USERPROFILE", "")
+            local_app_data = os.environ.get("LOCALAPPDATA", "")
+            
             common_windows_paths = [
                 r"C:\Program Files\Tesseract-OCR\tesseract.exe",
                 r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
             ]
+            if user_profile:
+                common_windows_paths.append(os.path.join(user_profile, r"AppData\Local\Tesseract-OCR\tesseract.exe"))
+                common_windows_paths.append(os.path.join(user_profile, r"AppData\Local\Programs\Tesseract-OCR\tesseract.exe"))
+            if local_app_data:
+                common_windows_paths.append(os.path.join(local_app_data, r"Tesseract-OCR\tesseract.exe"))
+                common_windows_paths.append(os.path.join(local_app_data, r"Programs\Tesseract-OCR\tesseract.exe"))
+                
+            found = False
             for path in common_windows_paths:
                 if os.path.exists(path):
                     tesseract_cmd = path
+                    found = True
                     break
+            
+            if not found:
+                raise FileNotFoundError(
+                    f"Tesseract executable not found in PATH or standard directories: {common_windows_paths}. "
+                    "Please install Tesseract or define the 'TESSERACT_PATH' environment variable (e.g. in your .env file) "
+                    "pointing to your tesseract.exe."
+                )
                     
         # Run tesseract redirecting output to stdout
         # -l deu+eng specifies both German and English
