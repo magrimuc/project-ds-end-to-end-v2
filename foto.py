@@ -16,6 +16,12 @@ if "cart" not in st.session_state:
     st.session_state.cart = {}
 if "scan_results" not in st.session_state:
     st.session_state.scan_results = []
+if "raw_text" not in st.session_state:
+    st.session_state.raw_text = ""
+
+def reset_scan_state():
+    st.session_state.scan_results = []
+    st.session_state.raw_text = ""
 
 # App Header
 st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
@@ -31,15 +37,55 @@ tab_scan, tab_cart, tab_catalog = st.tabs(["📸 Foto scannen", "🛒 Warenkorb"
 with tab_scan:
     st.markdown("### 1. Zettel abfotografieren oder Bild hochladen")
     
-    source_type = st.radio("Eingabequelle wählen:", ["Kamera benutzen", "Bild hochladen"], horizontal=True)
+    source_type = st.radio("Eingabequelle wählen:", ["Kamera benutzen", "Bild hochladen"], horizontal=True, on_change=reset_scan_state)
     
     uploaded_file = None
     if source_type == "Bild hochladen":
-        uploaded_file = st.file_uploader("Bild (PNG, JPG, JPEG, WEBP) auswählen...", type=["png", "jpg", "jpeg", "webp"])
+        uploaded_file = st.file_uploader("Bild (PNG, JPG, JPEG, WEBP) auswählen...", type=["png", "jpg", "jpeg", "webp"], on_change=reset_scan_state)
     else:
-        uploaded_file = st.camera_input("Foto der Materialliste aufnehmen")
+        uploaded_file = st.camera_input("Foto der Materialliste aufnehmen", on_change=reset_scan_state)
         
     if uploaded_file is not None:
+        # Show clipboard copy box if text is analyzed
+        if st.session_state.raw_text:
+            import urllib.parse
+            encoded_text = urllib.parse.quote(st.session_state.raw_text)
+            js_code = f"""
+            <div id="copy-box" style="cursor: pointer; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+                <span>📸 Bild analysiert: <strong>{uploaded_file.name if hasattr(uploaded_file, "name") else "Foto"}</strong></span>
+                <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des Rohtexts</span>
+            </div>
+            <script>
+            document.getElementById('copy-box').addEventListener('click', () => {{
+                const text = decodeURIComponent("{encoded_text}");
+                if (navigator.clipboard && navigator.clipboard.writeText) {{
+                    navigator.clipboard.writeText(text).then(() => {{
+                        alert('Rohtext wurde in die Zwischenablage kopiert!');
+                    }}).catch(err => {{
+                        fallbackCopy(text);
+                    }});
+                }} else {{
+                    fallbackCopy(text);
+                }}
+            }});
+            function fallbackCopy(text) {{
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {{
+                    document.execCommand('copy');
+                    alert('Rohtext wurde in die Zwischenablage kopiert!');
+                }} catch (err) {{
+                    alert('Kopieren fehlgeschlagen.');
+                }}
+                document.body.removeChild(textArea);
+            }}
+            </script>
+            """
+            import streamlit.components.v1 as components
+            components.html(js_code, height=55)
+
         col_img, col_act = st.columns([1, 1])
         
         with col_img:
@@ -55,17 +101,25 @@ with tab_scan:
                     try:
                         products_list = load_products("data/products.csv")
                         parsed_items = []
+                        raw_text = ""
                         
                         if gemini_key:
-                            raw_json = run_gemini_ocr(doc_bytes, uploaded_file.type if hasattr(uploaded_file, 'type') else "image/png", gemini_key)
-                            import json
-                            parsed_items = json.loads(raw_json)
+                            try:
+                                raw_json = run_gemini_ocr(doc_bytes, uploaded_file.type if hasattr(uploaded_file, 'type') else "image/png", gemini_key)
+                                import json
+                                parsed_items = json.loads(raw_json)
+                                raw_text = "\n".join([f"{item['quantity']}x {item['raw_text']}" for item in parsed_items])
+                            except Exception as gemini_err:
+                                st.warning(f"⚠️ Gemini API fehlgeschlagen (z.B. Quota überschritten): {gemini_err}. Wechsle zu lokaler OCR-Erkennung...")
+                                raw_text = run_local_ocr(doc_bytes)
+                                parsed_items = parse_ocr_text(raw_text)
                         else:
                             # Local Tesseract OCR
                             raw_text = run_local_ocr(doc_bytes)
-                            st.text_area("Erkannter Rohtext:", raw_text, height=150)
                             parsed_items = parse_ocr_text(raw_text)
                             
+                        st.session_state.raw_text = raw_text
+                        
                         # Catalog Matching
                         scan_results = []
                         for item in parsed_items:
@@ -79,6 +133,7 @@ with tab_scan:
                             
                         st.session_state.scan_results = scan_results
                         st.success("Analyse erfolgreich abgeschlossen!")
+                        st.rerun()
                     except Exception as e:
                         st.error(f"Fehler bei der Analyse: {e}")
 
