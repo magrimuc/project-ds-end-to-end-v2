@@ -1,6 +1,6 @@
 id,name,brand,price,unit
-1001,Schulheft A4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück
-1002,Schulheft A4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück
+1001,Heft DINA4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück
+1002,Heft DinA4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück
 1003,Vokabelheft A5 Lineatur 53 (32 Blatt),Oxford,1.29,Stück
 1004,Bleistift HB Grip 2001,Faber-Castell,1.50,Stück
 1005,Buntstifte 12er Set dreikant,Pelikan,4.99,Packung
@@ -27,3 +27,8 @@ id,name,brand,price,unit
 1026,Umschlag grün DinA 5,Brunnen,0.45,Stück
 1027,Umschlag blau DinA 5,Brunnen,0.45,Stück
 1028,Umschlag weiß DinA 5,Brunnen,0.45,Stück
+1029,Heft DINA4 kariert Lineatur 22 mit Rand (16 Blatt),Brunnen,0.99,Stück
+1030,Heft DinA4 liniert Lineatur 21 mit Rand (16 Blatt),Brunnen,0.99,Stück
+1031,Heft DINA4 kariert Lineatur 22 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück
+1032,Heft DinA4 liniert Lineatur 21 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück
+
