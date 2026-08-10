@@ -7,15 +7,30 @@ def run_local_ocr(image_bytes: bytes) -> str:
     Runs local Tesseract OCR on the provided image bytes.
     Uses subprocess to call the tesseract binary.
     """
+    import shutil
+    
     # Write image to a temporary file
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_img:
         temp_img.write(image_bytes)
         temp_img_path = temp_img.name
 
     try:
+        # Determine tesseract command/executable path
+        tesseract_cmd = "tesseract"
+        if not shutil.which(tesseract_cmd):
+            # Check common default paths on Windows
+            common_windows_paths = [
+                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"
+            ]
+            for path in common_windows_paths:
+                if os.path.exists(path):
+                    tesseract_cmd = path
+                    break
+                    
         # Run tesseract redirecting output to stdout
         # -l deu+eng specifies both German and English
-        cmd = ["tesseract", temp_img_path, "stdout", "-l", "deu+eng"]
+        cmd = [tesseract_cmd, temp_img_path, "stdout", "-l", "deu+eng"]
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
