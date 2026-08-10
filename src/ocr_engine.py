@@ -25,56 +25,74 @@ def run_local_ocr(image_bytes: bytes) -> str:
         if os.path.exists(temp_img_path):
             os.remove(temp_img_path)
 
+_MODEL = None
+_PROCESSOR = None
+
+def get_granite_model_and_processor():
+    """
+    Loads and caches the ibm-granite/granite-docling-258M model and processor.
+    """
+    global _MODEL, _PROCESSOR
+    if _MODEL is None or _PROCESSOR is None:
+        import torch
+        from transformers import AutoProcessor, AutoModelForVision2Seq
+        
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model_id = "ibm-granite/granite-docling-258M"
+        
+        _PROCESSOR = AutoProcessor.from_pretrained(model_id)
+        _MODEL = AutoModelForVision2Seq.from_pretrained(model_id).to(device)
+        
+    return _MODEL, _PROCESSOR
+
 def run_gemini_ocr(image_bytes: bytes, mime_type: str, api_key: str) -> str:
     """
-    Runs Gemini multimodal OCR to extract structured items and quantities from the image.
+    Runs local ibm-granite/granite-docling-258M VLM to extract structured items and quantities.
+    Falls back to local Tesseract OCR if it fails.
     """
-    from google import genai
-    from google.genai import types
+    import io
     import json
-
-    client = genai.Client(api_key=api_key)
+    from PIL import Image
     
-    prompt = """
-    Erkenne alle bestellten Artikel auf dem Foto der Schulbedarfsliste.
-    Gib das Ergebnis als valides JSON-Array zurück. Jedes Objekt im Array muss folgende Schlüssel haben:
-    - "raw_text": der gelesene Text des Artikels (ohne die Mengenangabe)
-    - "quantity": die erkannte Anzahl / Menge als Ganzzahl (Standard ist 1, falls keine Zahl erkennbar ist)
-    
-    Beispiel-Ausgabe:
-    [
-      {"raw_text": "Bleistift HB Faber Castell", "quantity": 2},
-      {"raw_text": "Rechenheft DIN A4 kariert", "quantity": 5}
-    ]
-    
-    Gib ausschließlich das reine JSON-Array zurück, ohne Markdown-Formatierung wie ```json ... ```.
-    """
+    try:
+        from parser import parse_ocr_text
+    except ImportError:
+        from src.parser import parse_ocr_text
 
     try:
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=[
-                types.Part.from_bytes(
-                    data=image_bytes,
-                    mime_type=mime_type
-                ),
-                prompt
-            ]
-        )
+        # Load model and processor
+        model, processor = get_granite_model_and_processor()
         
-        # Clean response text in case model still wraps it in markdown code blocks
-        clean_text = response.text.strip()
-        if clean_text.startswith("```"):
-            lines = clean_text.splitlines()
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines[-1].startswith("```"):
-                lines = lines[:-1]
-            clean_text = "\n".join(lines).strip()
+        # Prepare image
+        image = Image.open(io.BytesIO(image_bytes))
+        if image.mode != "RGB":
+            image = image.convert("RGB")
             
-        return clean_text
+        import torch
+        device = next(model.parameters()).device
+        
+        # Prepare inputs
+        prompt = "Convert this page to docling."
+        inputs = processor(text=prompt, images=image, return_tensors="pt").to(device)
+        
+        # Generate text
+        with torch.no_grad():
+            outputs = model.generate(**inputs, max_new_tokens=1024)
+            
+        generated_text = processor.decode(outputs[0], skip_special_tokens=True)
+        
+        # Parse text to structured format
+        parsed_items = parse_ocr_text(generated_text)
+        return json.dumps(parsed_items, ensure_ascii=False)
+        
     except Exception as e:
-        raise RuntimeError(f"Gemini API request failed: {e}")
+        # Fallback to local Tesseract OCR
+        try:
+            raw_text = run_local_ocr(image_bytes)
+            parsed_items = parse_ocr_text(raw_text)
+            return json.dumps(parsed_items, ensure_ascii=False)
+        except Exception as fallback_err:
+            raise RuntimeError(f"OCR failed. Local model error: {e}. Tesseract fallback error: {fallback_err}")
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """
