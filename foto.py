@@ -57,8 +57,11 @@ with tab_scan:
                     raw_text = run_local_ocr(doc_bytes)
                     # Ersetze DINAS (auch dinas, Dinas, etc.) durch DIN A5
                     raw_text = re.sub(r'(?i)DINAS', 'DIN A5', raw_text)
+                    raw_text = re.sub(r'(?i)DIN AS', 'DIN A5', raw_text)
                     # Ersetze DINAt (auch dinat, DinaT, etc.) durch DIN A4
                     raw_text = re.sub(r'(?i)DINAt', 'DIN A4', raw_text)
+                    raw_text = re.sub(r'(?i)DIN At', 'DIN A4', raw_text)
+                    
                     st.session_state.raw_text = raw_text
                     parsed_items = parse_ocr_text(raw_text)
                     
