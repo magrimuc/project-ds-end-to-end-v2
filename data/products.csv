@@ -1,52 +1,58 @@
-id,name,brand,price,unit
-1001,Heft DINA4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück
-1002,Heft DinA4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück
-1003,Vokabelheft A5 Lineatur 53 (32 Blatt),Oxford,1.29,Stück
-1004,Bleistift HB Grip 2001,Faber-Castell,1.50,Stück
-1005,Buntstifte 12er Set dreikant,Pelikan,4.99,Packung
-1006,Radiergummi Plast-Clean,Läufer,0.80,Stück
-1007,Füllfederhalter Safari M,Lamy,19.90,Stück
-1008,Tintenpatronen blau T10 (5er Pack),Lamy,1.80,Packung
-1009,Tuschkasten K12 (12 Farben),Pelikan,9.95,Stück
-1010,Borstenpinsel-Set (Größen 4/8/12),Da Vinci,3.50,Set
-1011,Geodreieck 16 cm transparent,Aristo,1.20,Stück
-1012,Schulkompass Zirkel,Staedtler,8.50,Stück
-1013,Collegeblock A4 kariert (80 Blatt),Brunnen,1.79,Stück
-1014,Zeichenblock A3 (20 Blatt),Clairefontaine,2.49,Stück
-1015,Schnellhefter A4 Kunststoff blau,Durable,0.50,Stück
-1016,Schnellhefter A4 Kunststoff rot,Durable,0.50,Stück
-1017,Schnellhefter A4 Kunststoff grün,Durable,0.50,Stück
-1018,Anspitzer-Dose Trio Grip,Faber-Castell,2.99,Stück
-1019,Lineal 30cm Kunststoff transparent,Brunnen,1.10,Stück
-1020,Bastelschere rund 13cm Rechtshänder,Prym,2.20,Stück
-1021,Umschlag rot,Brunnen,0.45,Stück
-1022,Umschlag grün,Brunnen,0.45,Stück
-1023,Umschlag blau,Brunnen,0.45,Stück
-1024,Umschlag weiß,Brunnen,0.45,Stück
-1025,Umschlag rot DinA 5,Brunnen,0.45,Stück
-1026,Umschlag grün DinA 5,Brunnen,0.45,Stück
-1027,Umschlag blau DinA 5,Brunnen,0.45,Stück
-1028,Umschlag weiß DinA 5,Brunnen,0.45,Stück
-1029,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück
-1030,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück
-1031,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück
-1032,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück
-1033,Heft DIN A5 Schreibhäuschen Lineatur 0 (16 Blatt),Brunnen,0.99,Stück
-1034,Heft DIN A5 liniert Lineatur 1 mit Kontrast (16 Blatt),Brunnen,0.99,Stück
-1035,Heft DIN A5 liniert Lineatur 2 mit Kontrast (16 Blatt),Brunnen,0.99,Stück
-1036,Heft DIN A5 liniert Lineatur 3 (16 Blatt),Brunnen,0.99,Stück
-1037,Heft DIN A5 liniert Lineatur 3R mit Rand (16 Blatt),Brunnen,0.99,Stück
-1038,Heft DIN A5 liniert Lineatur 4 (16 Blatt),Brunnen,0.99,Stück
-1039,Heft DIN A5 kariert Lineatur 5 (16 Blatt),Brunnen,0.99,Stück
-1040,Heft DIN A5 kariert Lineatur 7 (16 Blatt),Brunnen,0.99,Stück
-1041,Heft DIN A5 kariert Lineatur 10 mit Umrandung (16 Blatt),Brunnen,0.99,Stück
-1042,Heft DIN A4 liniert Lineatur 25 mit Rand (16 Blatt),Brunnen,0.99,Stück
-1043,Heft DIN A4 kariert Lineatur 26 mit Rand (16 Blatt),Brunnen,0.99,Stück
-1044,Heft DIN A4 liniert Lineatur 27 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück
-1045,Heft DIN A4 kariert Lineatur 28 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück
-1046,Schnellhefter A4 Kunststoff weiß,Durable,0.50,Stück
-1046,Heft DinA5 Vokabeln Lineatur 53 zweispaltig (16 Blatt),Brunnen,0.99,Stück
-1047,Haarpinsel-Set (Größen 4/8/12),Da Vinci,3.50,Set
-1047,Heft DinA4 Vokabeln Lineatur 54 dreispaltig (16 Blatt),Brunnen,0.99,Stück
-1048,Block buntes Tonpapier DinA4,Brunnen,2.99,Stück
-
+id,name,brand,price,unit,description
+1001,Heft DINA4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1002,Heft DinA4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft"
+1003,Vokabelheft A5 Lineatur 53 (32 Blatt),Oxford,1.29,Stück,
+1004,Bleistift HB Grip 2001,Faber-Castell,1.5,Stück,
+1005,Buntstifte 12er Set dreikant,Pelikan,4.99,Packung,
+1006,Radiergummi Plast-Clean,Läufer,0.8,Stück,
+1007,Füllfederhalter Safari M,Lamy,19.9,Stück,
+1008,Tintenpatronen blau T10 (5er Pack),Lamy,1.8,Packung,
+1009,Tuschkasten K12 (12 Farben),Pelikan,9.95,Stück,
+1010,Borstenpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,
+1011,Geodreieck 16 cm transparent,Aristo,1.2,Stück,
+1012,Schulkompass Zirkel,Staedtler,8.5,Stück,
+1013,Collegeblock A4 kariert (80 Blatt),Brunnen,1.79,Stück,
+1014,Zeichenblock A3 (20 Blatt),Clairefontaine,2.49,Stück,
+1015,Schnellhefter A4 Kunststoff blau,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
+1016,Schnellhefter A4 Kunststoff rot,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
+1017,Schnellhefter A4 Kunststoff grün,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
+1018,Anspitzer-Dose Trio Grip,Faber-Castell,2.99,Stück,
+1019,Lineal 30cm Kunststoff transparent,Brunnen,1.1,Stück,
+1020,Bastelschere rund 13cm Rechtshänder,Prym,2.2,Stück,
+1021,Umschlag rot Din A4,Brunnen,0.45,Stück,
+1022,Umschlag grün Din A4,Brunnen,0.45,Stück,
+1023,Umschlag blau Din A4,Brunnen,0.45,Stück,
+1024,Umschlag weiß Din A4,Brunnen,0.45,Stück,
+1025,Umschlag rot Din A5,Brunnen,0.45,Stück,
+1026,Umschlag grün Din A5,Brunnen,0.45,Stück,
+1027,Umschlag blau Din A5,Brunnen,0.45,Stück,
+1028,Umschlag weiß Din A5,Brunnen,0.45,Stück,
+1029,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1030,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft"
+1031,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1032,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft"
+1033,Heft DIN A5 Schreibhäuschen Lineatur 0 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft"
+1034,Heft DIN A5 liniert Lineatur 1 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,Schreiblernheft
+1035,Heft DIN A5 liniert Lineatur 2 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,Mitteilungsheft
+1036,Heft DIN A5 liniert Lineatur 3 (16 Blatt),Brunnen,0.99,Stück,Mitteilungsheft
+1037,Heft DIN A5 liniert Lineatur 3R mit Rand (16 Blatt),Brunnen,0.99,Stück,Mitteilungsheft
+1038,Heft DIN A5 liniert Lineatur 4 (16 Blatt),Brunnen,0.99,Stück,Mitteilungsheft
+1039,Heft DIN A5 kariert Lineatur 5 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1040,Heft DIN A5 kariert Lineatur 7 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1041,Heft DIN A5 kariert Lineatur 10 mit Umrandung (16 Blatt),Brunnen,0.99,Stück,Schreiblernheft
+1042,Heft DIN A4 liniert Lineatur 25 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft"
+1043,Heft DIN A4 kariert Lineatur 26 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1044,Heft DIN A4 liniert Lineatur 27 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,Regelheft
+1045,Heft DIN A4 kariert Lineatur 28 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik"
+1046,Schnellhefter A4 Kunststoff weiß,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
+1046,Heft DinA5 Vokabeln Lineatur 53 zweispaltig (16 Blatt),Brunnen,0.99,Stück,
+1047,Haarpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,
+1047,Heft DinA4 Vokabeln Lineatur 54 dreispaltig (16 Blatt),Brunnen,0.99,Stück,
+1048,Block buntes Tonpapier DinA4,Brunnen,2.99,Stück,
+1049,Eckspannmappe rot,Pelikan,2.3,Stück,
+1050,Eckspannmappe blau,Pelikan,2.3,Stück,
+1051,Eckspannmappe grün,Pelikan,2.3,Stück,
+1052,Eckspannmappe weiß,Pelikan,2.3,Stück,
+1053,Eckspannmappe gelb,Pelikan,2.3,Stück,
+1054,Schnellhefter A4 Kunststoff schwarz,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
+1055,Schnellhefter A4 Kunststoff lila,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"

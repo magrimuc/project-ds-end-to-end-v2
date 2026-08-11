@@ -14,6 +14,27 @@ def load_products(csv_path: str = "data/products.csv") -> list:
 def clean_text(text: str) -> str:
     """Cleans text for better matching comparison."""
     text = text.lower()
+    
+    # Normalize din a4 / din a5
+    text = re.sub(r'dina(\d)', r'din a\1', text)
+    
+    # Normalize compound nouns containing "heft"
+    text = re.sub(r'schulheft', 'schul heft', text)
+    text = re.sub(r'schreibheft', 'schreib heft', text)
+    text = re.sub(r'hausheft', 'haus heft', text)
+    text = re.sub(r'rechenheft', 'rechen heft', text)
+    text = re.sub(r'vokabelheft', 'vokabel heft', text)
+    text = re.sub(r'regelheft', 'regel heft', text)
+    text = re.sub(r'mitteilungsheft', 'mitteilungs heft', text)
+    text = re.sub(r'schreiblernheft', 'schreiblern heft', text)
+    text = re.sub(r'doppelheft', 'doppel heft', text)
+    text = re.sub(r'notenheft', 'noten heft', text)
+    text = re.sub(r'arbeitsheft', 'arbeits heft', text)
+    text = re.sub(r'übungsheft', 'übungs heft', text)
+    
+    # Normalize pappschnellhefter to schnellhefter
+    text = re.sub(r'pappschnellhefter', 'papp schnellhefter', text)
+    
     text = re.sub(r'[^a-z0-9\säöüß]', ' ', text)
     return " ".join(text.split())
 
@@ -25,10 +46,19 @@ def get_similarity_score(str1: str, str2: str) -> float:
     if not clean1 or not clean2:
         return 0.0
         
-    seq_ratio = difflib.SequenceMatcher(None, clean1, clean2).ratio()
-    
     words1 = set(clean1.split())
     words2 = set(clean2.split())
+    
+    # Ensure "heft" products and "hefter/schnellhefter" products are mutually exclusive
+    is_heft_1 = any(w == "heft" for w in words1)
+    is_hefter_1 = any("hefter" in w for w in words1)
+    is_heft_2 = any(w == "heft" for w in words2)
+    is_hefter_2 = any("hefter" in w for w in words2)
+    
+    if (is_heft_1 and is_hefter_2) or (is_hefter_1 and is_heft_2):
+        return 0.0
+        
+    seq_ratio = difflib.SequenceMatcher(None, clean1, clean2).ratio()
     
     if not words1 or not words2:
         return seq_ratio
@@ -50,6 +80,11 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
         score_name = get_similarity_score(raw_text, prod['name'])
         score = max(score, score_name)
         
+        # Match against description if available
+        if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
+            score_desc = get_similarity_score(raw_text, prod['description'])
+            score = max(score, score_desc)
+            
         if score > best_score:
             best_score = score
             best_product = prod
