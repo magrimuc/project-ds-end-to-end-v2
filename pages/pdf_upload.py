@@ -15,7 +15,7 @@ if os.path.exists(".env"):
 # Ensure root directory is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.ocr_engine import run_gemini_ocr, extract_text_from_pdf
+from src.ocr_engine import extract_text_from_pdf
 from src.parser import parse_ocr_text
 from src.matcher import load_products, find_best_match
 
@@ -133,14 +133,7 @@ if uploaded_pdf is not None:
                         # Extrahierter Rohtext (Lokale Analyse) is not displayed anymore
                         parsed_items = parse_ocr_text(raw_text)
                     else:
-                        # Scanned PDF (image-only): fallback to Gemini OCR if key is set
-                        if gemini_key:
-                            st.info("Scanner erkennt gescanntes PDF. Starte AI-gestützte Texterkennung...")
-                            raw_json = run_gemini_ocr(pdf_bytes, "application/pdf", gemini_key)
-                            import json
-                            parsed_items = json.loads(raw_json)
-                        else:
-                            st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Für gescannte PDFs (Bild-PDFs) wird ein konfigurierter Gemini API-Schlüssel benötigt.")
+                        st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Handelt es sich um ein gescanntes Dokument?")
                     
                     # Match catalog products
                     scan_results = []

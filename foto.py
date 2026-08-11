@@ -7,7 +7,7 @@ from PIL import Image
 # Ensure root directory is in sys.path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from src.ocr_engine import run_gemini_ocr, run_local_ocr
+from src.ocr_engine import run_local_ocr
 from src.parser import parse_ocr_text
 from src.matcher import load_products, find_best_match
 
@@ -101,22 +101,9 @@ with tab_scan:
                     try:
                         products_list = load_products("data/products.csv")
                         parsed_items = []
-                        raw_text = ""
-                        
-                        if gemini_key:
-                            try:
-                                raw_json = run_gemini_ocr(doc_bytes, uploaded_file.type if hasattr(uploaded_file, 'type') else "image/png", gemini_key)
-                                import json
-                                parsed_items = json.loads(raw_json)
-                                raw_text = "\n".join([f"{item['quantity']}x {item['raw_text']}" for item in parsed_items])
-                            except Exception as gemini_err:
-                                st.warning(f"⚠️ Gemini API fehlgeschlagen (z.B. Quota überschritten): {gemini_err}. Wechsle zu lokaler OCR-Erkennung...")
-                                raw_text = run_local_ocr(doc_bytes)
-                                parsed_items = parse_ocr_text(raw_text)
-                        else:
-                            # Local Tesseract OCR
-                            raw_text = run_local_ocr(doc_bytes)
-                            parsed_items = parse_ocr_text(raw_text)
+                        # Local Tesseract OCR
+                        raw_text = run_local_ocr(doc_bytes)
+                        parsed_items = parse_ocr_text(raw_text)
                             
                         st.session_state.raw_text = raw_text
                         
