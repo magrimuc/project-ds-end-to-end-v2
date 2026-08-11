@@ -19,14 +19,14 @@ id,name,brand,price,unit,description
 1018,Anspitzer-Dose Trio Grip,Faber-Castell,2.99,Stück,
 1019,Lineal 30cm Kunststoff transparent,Brunnen,1.1,Stück,
 1020,Bastelschere rund 13cm Rechtshänder,Prym,2.2,Stück,
-1021,Umschlag rot Din A4,Brunnen,0.45,Stück,
-1022,Umschlag grün Din A4,Brunnen,0.45,Stück,
-1023,Umschlag blau Din A4,Brunnen,0.45,Stück,
-1024,Umschlag weiß Din A4,Brunnen,0.45,Stück,
-1025,Umschlag rot Din A5,Brunnen,0.45,Stück,
-1026,Umschlag grün Din A5,Brunnen,0.45,Stück,
-1027,Umschlag blau Din A5,Brunnen,0.45,Stück,
-1028,Umschlag weiß Din A5,Brunnen,0.45,Stück,
+1021,Umschlag rot Din A4,Brunnen,0.45,Stück,Einband
+1022,Umschlag grün Din A4,Brunnen,0.45,Stück,Einband
+1023,Umschlag blau Din A4,Brunnen,0.45,Stück,Einband
+1024,Umschlag weiß Din A4,Brunnen,0.45,Stück,Einband
+1025,Umschlag rot Din A5,Brunnen,0.45,Stück,Einband
+1026,Umschlag grün Din A5,Brunnen,0.45,Stück,Einband
+1027,Umschlag blau Din A5,Brunnen,0.45,Stück,Einband
+1028,Umschlag weiß Din A5,Brunnen,0.45,Stück,Einband
 1029,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen"
 1030,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm"
 1031,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen"
@@ -59,3 +59,7 @@ id,name,brand,price,unit,description
 1056,Heft DIN A5 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft"
 1057,Heft DIN A4 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft"
 1058,Pelikan K12 blau Wasserfarbkasten 12 Farben,Pelikan,9.99,Stück,"Deckfarbkasten, Malkasten, Deckweiß"
+1059,Heft DIN A4 Lineatur 40 kariert mit umlaufendem Rand 16 Blatt,0.50,Stück,Schulheft
+1060,Umschlag hellblau Din A4,Brunnen,0.45,Stück,Einband
+1061,Umschlag dunkelblau Din A4,Brunnen,0.45,Stück,Einband
+1062,Umschlag transparent Din A4,Brunnen,0.45,Stück,Einband
