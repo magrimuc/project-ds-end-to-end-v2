@@ -16,7 +16,7 @@ Recognition Focus: Quantities are generally well-readable; the system also suppo
 
 Here is the structured implementation roadmap for the repository, incorporating a technical sanity check for each milestone:
 
-### 🚀 Milestone 1: Streamlit App with OCR & Device-Based Routing
+### 🚀 Milestone 1: Streamlit App with OCR & PDF text extraction
 * **Objective:** Capture school lists through a responsive Streamlit application.
 * **Routing Logic:**
   * Detect if the client is running on a mobile browser (cell phone) vs. desktop.
@@ -34,6 +34,8 @@ Here is the structured implementation roadmap for the repository, incorporating 
 * **Technical Check / Feasibility:**
   * *Challenge:* OCR text often contains spelling mistakes, abbreviations, or lacks brand details.
   * *Solution:* We combine regex-based quantity extractors with fuzzy match scoring. If the match score is below a certain threshold, the item is marked as "low-confidence" for validation.
+  * products.csv engineered with typical description values
+  * certain mismatches avoided by hard encoding
 
 ### 🧠 Milestone 3: Machine Learning Clustering & Recommender Engine
 * **Objective:** Train a classifier/clustering model on `shopping_baskets.csv` to predict the grade level and provide automated suggestions.
@@ -52,7 +54,7 @@ Here is the structured implementation roadmap for the repository, incorporating 
   * List the top 3-5 recommended items for that grade.
   * Include a simple "+" button next to each suggestion to add it to the cart with one click.
 
-### 💳 Milestone 5: Checkout Integration
+### 💳 Milestone 5: Checkout Integration & language en
 * **Objective:** Prepare checkout or order dispatch.
 * **Logic:**
   * Add support for exporting the shopping cart to external platforms (e.g., Rainforest/Amazon API, RapidAPI, Wolt) or formatting a PDF/email order list to send to local stationery shops.
