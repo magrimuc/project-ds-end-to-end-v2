@@ -22,13 +22,12 @@ if "raw_text" not in st.session_state:
 def reset_scan_state():
     st.session_state.scan_results = []
     st.session_state.raw_text = ""
+    if "last_analyzed_foto" in st.session_state:
+        del st.session_state["last_analyzed_foto"]
 
 # App Header
 st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Optimiert für Mobilgeräte. Fotografieren Sie eine Materialliste ab, um sie direkt zu digitalisieren.</div>', unsafe_allow_html=True)
-
-# Load env key for Gemini API
-gemini_key = os.environ.get("GEMINI_API_KEY", "")
 
 # Tabs
 tab_scan, tab_cart, tab_catalog = st.tabs(["📸 Foto scannen", "🛒 Warenkorb", "📦 Produktkatalog"])
@@ -46,14 +45,49 @@ with tab_scan:
         uploaded_file = st.camera_input("Foto der Materialliste aufnehmen", on_change=reset_scan_state)
         
     if uploaded_file is not None:
-        # Show clipboard copy box if text is analyzed
-        if st.session_state.raw_text:
+        file_id = f"{uploaded_file.name}_{uploaded_file.size}" if hasattr(uploaded_file, "name") else "camera_photo"
+        
+        if st.session_state.get("last_analyzed_foto") != file_id:
+            with st.spinner("Foto wird automatisch analysiert..."):
+                try:
+                    doc_bytes = uploaded_file.getvalue()
+                    products_list = load_products("data/products.csv")
+                    raw_text = run_local_ocr(doc_bytes)
+                    st.session_state.raw_text = raw_text
+                    parsed_items = parse_ocr_text(raw_text)
+                    
+                    scan_results = []
+                    for item in parsed_items:
+                        match = find_best_match(item['raw_text'], products_list)
+                        best_match_id = match['product_id'] if match else 0
+                        scan_results.append({
+                            "raw_text": item['raw_text'],
+                            "quantity": item['quantity'],
+                            "best_match_id": best_match_id
+                        })
+                    st.session_state.scan_results = scan_results
+                    st.session_state.last_analyzed_foto = file_id
+                    st.toast("Analyse erfolgreich abgeschlossen!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Fehler bei der automatischen Analyse: {e}")
+
+        # Display side-by-side copy-box and Document Show button
+        import base64
+        b64 = base64.b64encode(uploaded_file.getvalue()).decode()
+        mime = uploaded_file.type if hasattr(uploaded_file, "type") else "image/png"
+        data_url = f"data:{mime};base64,{b64}"
+        
+        col_copy, col_show = st.columns([7, 3])
+        
+        with col_copy:
             import urllib.parse
-            encoded_text = urllib.parse.quote(st.session_state.raw_text)
+            encoded_text = urllib.parse.quote(st.session_state.get("raw_text", ""))
+            filename_lbl = uploaded_file.name if hasattr(uploaded_file, "name") else "Foto"
             js_code = f"""
-            <div id="copy-box" style="cursor: pointer; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-                <span>📸 Bild analysiert: <strong>{uploaded_file.name if hasattr(uploaded_file, "name") else "Foto"}</strong></span>
-                <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des Rohtexts</span>
+            <div id="copy-box" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+                <span>📸 Dokument geladen: <strong>{filename_lbl}</strong></span>
+                <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des erfassten Rohtexts</span>
             </div>
             <script>
             document.getElementById('copy-box').addEventListener('click', () => {{
@@ -84,45 +118,10 @@ with tab_scan:
             </script>
             """
             import streamlit.components.v1 as components
-            components.html(js_code, height=55)
-
-        col_img, col_act = st.columns([1, 1])
-        
-        with col_img:
-            image = Image.open(uploaded_file)
-            st.image(image, caption="Erfasstes Foto", use_container_width=True)
+            components.html(js_code, height=50)
             
-        with col_act:
-            st.markdown("### 2. Analyse starten")
-            if st.button("Foto analysieren", type="primary"):
-                doc_bytes = uploaded_file.getvalue()
-                
-                with st.spinner("Text wird extrahiert..."):
-                    try:
-                        products_list = load_products("data/products.csv")
-                        parsed_items = []
-                        # Local Tesseract OCR
-                        raw_text = run_local_ocr(doc_bytes)
-                        parsed_items = parse_ocr_text(raw_text)
-                            
-                        st.session_state.raw_text = raw_text
-                        
-                        # Catalog Matching
-                        scan_results = []
-                        for item in parsed_items:
-                            match = find_best_match(item['raw_text'], products_list)
-                            if match and match['product_id']:
-                                scan_results.append({
-                                    "raw_text": item['raw_text'],
-                                    "quantity": item['quantity'],
-                                    "best_match_id": match['product_id']
-                                })
-                            
-                        st.session_state.scan_results = scan_results
-                        st.success("Analyse erfolgreich abgeschlossen!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Fehler bei der Analyse: {e}")
+        with col_show:
+            st.link_button("📄 Dokument anzeigen", data_url, use_container_width=True)
 
         # Verification UI
         if st.session_state.scan_results:

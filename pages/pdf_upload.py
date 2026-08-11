@@ -60,98 +60,93 @@ st.write("Laden Sie die digitale PDF-Materialliste der Schule hoch, um Artikel a
 gemini_key = os.environ.get("GEMINI_API_KEY", "")
 
 def reset_pdf_state():
-    if "analyzed" in st.session_state:
-        st.session_state.analyzed = False
     if "raw_text" in st.session_state:
         del st.session_state["raw_text"]
+    if "last_analyzed_pdf" in st.session_state:
+        del st.session_state["last_analyzed_pdf"]
     st.session_state.scan_results = []
 
 uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"], on_change=reset_pdf_state)
 
 if uploaded_pdf is not None:
-    if "raw_text" not in st.session_state:
-        try:
-            st.session_state.raw_text = extract_text_from_pdf(uploaded_pdf.getvalue())
-        except Exception as e:
-            st.session_state.raw_text = ""
-            st.error(f"Fehler beim Extrahieren des Texts: {e}")
-            
-    # Inject clipboard copy script and custom element
-    import urllib.parse
-    encoded_text = urllib.parse.quote(st.session_state.raw_text)
+    file_id = f"{uploaded_pdf.name}_{uploaded_pdf.size}"
     
-    js_code = f"""
-    <div id="copy-box" style="cursor: pointer; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-        <span>📄 Datei geladen: <strong>{uploaded_pdf.name}</strong></span>
-        <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des Rohtexts</span>
-    </div>
-    <script>
-    document.getElementById('copy-box').addEventListener('click', () => {{
-        const text = decodeURIComponent("{encoded_text}");
-        if (navigator.clipboard && navigator.clipboard.writeText) {{
-            navigator.clipboard.writeText(text).then(() => {{
-                alert('Rohtext wurde in die Zwischenablage kopiert!');
-            }}).catch(err => {{
+    if st.session_state.get("last_analyzed_pdf") != file_id:
+        with st.spinner("PDF wird automatisch analysiert..."):
+            try:
+                raw_text = extract_text_from_pdf(uploaded_pdf.getvalue())
+                st.session_state.raw_text = raw_text
+                
+                products_list = load_products("data/products.csv")
+                parsed_items = []
+                if raw_text.strip():
+                    parsed_items = parse_ocr_text(raw_text)
+                
+                scan_results = []
+                for item in parsed_items:
+                    match = find_best_match(item['raw_text'], products_list)
+                    best_match_id = match['product_id'] if match else 0
+                    scan_results.append({
+                        "raw_text": item['raw_text'],
+                        "quantity": item['quantity'],
+                        "best_match_id": best_match_id
+                    })
+                
+                st.session_state.scan_results = scan_results
+                st.session_state.last_analyzed_pdf = file_id
+                st.toast("Analyse erfolgreich abgeschlossen!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Fehler bei der automatischen Analyse: {e}")
+
+    # Display side-by-side copy-box and Document Show button
+    import base64
+    b64 = base64.b64encode(uploaded_pdf.getvalue()).decode()
+    data_url = f"data:application/pdf;base64,{b64}"
+    
+    col_copy, col_show = st.columns([7, 3])
+    
+    with col_copy:
+        import urllib.parse
+        encoded_text = urllib.parse.quote(st.session_state.get("raw_text", ""))
+        js_code = f"""
+        <div id="copy-box" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+            <span>📄 Dokument geladen: <strong>{uploaded_pdf.name}</strong></span>
+            <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des erfassten Rohtexts</span>
+        </div>
+        <script>
+        document.getElementById('copy-box').addEventListener('click', () => {{
+            const text = decodeURIComponent("{encoded_text}");
+            if (navigator.clipboard && navigator.clipboard.writeText) {{
+                navigator.clipboard.writeText(text).then(() => {{
+                    alert('Rohtext wurde in die Zwischenablage kopiert!');
+                }}).catch(err => {{
+                    fallbackCopy(text);
+                }});
+            }} else {{
                 fallbackCopy(text);
-            }});
-        }} else {{
-            fallbackCopy(text);
+            }}
+        }});
+        function fallbackCopy(text) {{
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {{
+                document.execCommand('copy');
+                alert('Rohtext wurde in die Zwischenablage kopiert!');
+            }} catch (err) {{
+                alert('Kopieren fehlgeschlagen.');
+            }}
+            document.body.removeChild(textArea);
         }}
-    }});
-    function fallbackCopy(text) {{
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {{
-            document.execCommand('copy');
-            alert('Rohtext wurde in die Zwischenablage kopiert!');
-        }} catch (err) {{
-            alert('Kopieren fehlgeschlagen.');
-        }}
-        document.body.removeChild(textArea);
-    }}
-    </script>
-    """
-    import streamlit.components.v1 as components
-    components.html(js_code, height=55)
-    
-    # Show analyze button only if not yet analyzed
-    if not st.session_state.get("analyzed", False):
-        if st.button("PDF analysieren", type="primary"):
-            st.session_state.analyzed = True
-            pdf_bytes = uploaded_pdf.getvalue()
-            
-            with st.spinner("PDF wird ausgelesen..."):
-                try:
-                    products_list = load_products("data/products.csv")
-                    parsed_items = []
-                    
-                    raw_text = st.session_state.raw_text
-                    
-                    if raw_text.strip():
-                        # Extrahierter Rohtext (Lokale Analyse) is not displayed anymore
-                        parsed_items = parse_ocr_text(raw_text)
-                    else:
-                        st.warning("⚠️ Kein auslesbarer Text im PDF gefunden. Handelt es sich um ein gescanntes Dokument?")
-                    
-                    # Match catalog products
-                    scan_results = []
-                    for item in parsed_items:
-                        match = find_best_match(item['raw_text'], products_list)
-                        if match and match['product_id']:
-                            scan_results.append({
-                                "raw_text": item['raw_text'],
-                                "quantity": item['quantity'],
-                                "best_match_id": match['product_id']
-                            })
-                        
-                    st.session_state.scan_results = scan_results
-                    st.success("Analyse erfolgreich abgeschlossen!")
-                    st.rerun()
-                    
-                except Exception as e:
-                    st.error(f"Fehler bei der Analyse: {e}")
+        </script>
+        """
+        import streamlit.components.v1 as components
+        components.html(js_code, height=50)
+        
+    with col_show:
+        st.link_button("📄 Dokument anzeigen", data_url, use_container_width=True)
 
 # If we have scan results, show verification UI
 if "scan_results" in st.session_state and st.session_state.scan_results:
