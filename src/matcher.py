@@ -73,6 +73,9 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
     best_product = None
     best_score = 0.0
     
+    clean_query = clean_text(raw_text)
+    query_words = set(clean_query.split())
+    
     for prod in products:
         display_name = f"{prod['name']} {prod['brand']}"
         score = get_similarity_score(raw_text, display_name)
@@ -83,6 +86,20 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
         # Match against description if available
         if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
             score_desc = get_similarity_score(raw_text, prod['description'])
+            
+            # If the query words are completely contained in the description words, give it a high score
+            clean_desc = clean_text(prod['description'])
+            desc_words = set(clean_desc.split())
+            if query_words and query_words.issubset(desc_words):
+                # Ensure we don't cross Heft/Hefter separation
+                is_heft_q = any(w == "heft" for w in query_words)
+                is_hefter_d = any("hefter" in w for w in desc_words)
+                is_hefter_q = any("hefter" in w for w in query_words)
+                is_heft_d = any(w == "heft" for w in desc_words)
+                
+                if not ((is_heft_q and is_hefter_d) or (is_hefter_q and is_heft_d)):
+                    score_desc = max(score_desc, 0.85)
+                    
             score = max(score, score_desc)
             
         if score > best_score:
