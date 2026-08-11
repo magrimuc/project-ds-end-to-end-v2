@@ -147,13 +147,14 @@ with tab_scan:
             options[0] = "-- Kein passendes Produkt --"
             
             form_data = []
-            col1, col2, col3 = st.columns([3, 4, 2])
+            col1, col2, col3, col_add_header = st.columns([3, 4, 2, 1])
             col1.markdown("**Erkannter Text**")
             col2.markdown("**Katalog-Produkt**")
             col3.markdown("**Menge**")
+            col_add_header.markdown("**Neu**")
             
             for i, res in enumerate(st.session_state.scan_results):
-                c_text, c_match, c_qty = st.columns([3, 4, 2])
+                c_text, c_match, c_qty, c_insert = st.columns([3, 4, 2, 1])
                 c_text.text(res['raw_text'])
                 
                 default_id = res['best_match_id'] if res['best_match_id'] in options else 0
@@ -176,6 +177,22 @@ with tab_scan:
                     label_visibility="collapsed"
                 )
                 form_data.append((sel_id, qty))
+                
+                if c_insert.button("➕", key=f"insert_after_mobile_{i}", help="Neue Zeile darunter einfügen"):
+                    # Persist current modified inputs before inserting
+                    new_results = []
+                    for idx in range(len(st.session_state.scan_results)):
+                        p_val = st.session_state.get(f"mobile_prod_{idx}", st.session_state.scan_results[idx]['best_match_id'])
+                        q_val = st.session_state.get(f"mobile_qty_{idx}", st.session_state.scan_results[idx]['quantity'])
+                        new_results.append({
+                            "raw_text": st.session_state.scan_results[idx]['raw_text'],
+                            "quantity": q_val,
+                            "best_match_id": p_val
+                        })
+                    # Insert new empty row
+                    new_results.insert(i + 1, {"raw_text": "Manuelle Position", "quantity": 1, "best_match_id": 0})
+                    st.session_state.scan_results = new_results
+                    st.rerun()
                 
             col_submit, col_add = st.columns([2, 1])
             with col_submit:
