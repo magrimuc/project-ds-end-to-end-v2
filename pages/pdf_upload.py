@@ -214,7 +214,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
                     "best_match_id": p_val
                 })
             # Insert new empty row
-            new_results.insert(i + 1, {"raw_text": "Manuelle Position", "quantity": 1, "best_match_id": 0})
+            new_results.insert(i + 1, {"raw_text": "-----------------------------------", "quantity": 1, "best_match_id": 0})
             st.session_state.scan_results = new_results
             st.rerun()
         
