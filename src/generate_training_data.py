@@ -293,10 +293,14 @@ def main():
                     "quantity": 0
                 })
                 
-    df_out = pd.DataFrame(records)
+    import csv
     out_path = "project-ds-end-to-end-v2/data/pdf_lines_mapped.csv"
-    df_out.to_csv(out_path, index=False)
-    print(f"Saved {len(df_out)} mapped records to {out_path}")
+    with open(out_path, mode='w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_ALL)
+        writer.writerow(["raw_line", "product_id", "quantity"])
+        for r in records:
+            writer.writerow([r["raw_line"], r["product_id"], r["quantity"]])
+    print(f"Saved {len(records)} mapped records to {out_path}")
 
 if __name__ == "__main__":
     main()
