@@ -85,15 +85,17 @@ def get_similarity_score(str1: str, str2: str) -> float:
 
 def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> dict:
     """Finds the best matching product from the catalog for a given raw text using ML classifier if available, with fuzzy fallback."""
+    # Clean the input text at the very beginning of the decision process
+    cleaned_text = clean_text(raw_text)
     
     # 1. Try model prediction if model is loaded
     if _model_data and "pipeline" in _model_data:
         try:
             pipeline = _model_data["pipeline"]
-            pred_id = int(pipeline.predict([raw_text])[0])
+            pred_id = int(pipeline.predict([cleaned_text])[0])
             
             # Predict probabilities to gauge confidence
-            probs = pipeline.predict_proba([raw_text])[0]
+            probs = pipeline.predict_proba([cleaned_text])[0]
             max_prob = max(probs)
             
             if pred_id != 0 and max_prob >= 0.65:
@@ -116,18 +118,17 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
     best_product = None
     best_score = 0.0
     
-    clean_query = clean_text(raw_text)
-    query_words = set(clean_query.split())
+    query_words = set(cleaned_text.split())
     
     for prod in products:
         display_name = f"{prod['name']} {prod['brand']}"
-        score = get_similarity_score(raw_text, display_name)
+        score = get_similarity_score(cleaned_text, display_name)
         
-        score_name = get_similarity_score(raw_text, prod['name'])
+        score_name = get_similarity_score(cleaned_text, prod['name'])
         score = max(score, score_name)
         
         if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
-            score_desc = get_similarity_score(raw_text, prod['description'])
+            score_desc = get_similarity_score(cleaned_text, prod['description'])
             
             clean_desc = clean_text(prod['description'])
             desc_words = set(clean_desc.split())
