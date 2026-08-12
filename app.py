@@ -14,6 +14,7 @@ if "override_device_detect" not in st.session_state:
 # Page definitions (Custom titles and icons)
 foto_page = st.Page("foto.py", title="Foto", icon="📸")
 pdf_page = st.Page("pages/pdf_upload.py", title="PDF", icon="📄")
+cart_page = st.Page("pages/cart.py", title="Warenkorb", icon="🛒")
 pull_page = st.Page("pages/pull.py", title="Pull", icon="🔄")
 
 # Device Routing
@@ -23,5 +24,5 @@ if not is_mobile and not st.session_state.override_device_detect:
     st.switch_page(pdf_page)
 
 # Render Navigation
-pg = st.navigation([foto_page, pdf_page, pull_page])
+pg = st.navigation([foto_page, pdf_page, cart_page, pull_page])
 pg.run()

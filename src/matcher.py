@@ -85,49 +85,23 @@ def get_similarity_score(str1: str, str2: str) -> float:
 
 def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> dict:
     """Finds the best matching product from the catalog for a given raw text using ML classifier if available, with fuzzy fallback."""
+    # Clean the input text at the very beginning of the decision process
+    cleaned_text = clean_text(raw_text)
     
-    # 1. Try model prediction if model is loaded
-    if _model_data and "pipeline" in _model_data:
-        try:
-            pipeline = _model_data["pipeline"]
-            pred_id = int(pipeline.predict([raw_text])[0])
-            
-            # Predict probabilities to gauge confidence
-            probs = pipeline.predict_proba([raw_text])[0]
-            max_prob = max(probs)
-            
-            if pred_id != 0 and max_prob >= 0.65:
-                # Find product in list
-                for prod in products:
-                    if int(prod['id']) == pred_id:
-                        return {
-                            "product_id": prod['id'],
-                            "name": prod['name'],
-                            "brand": prod['brand'],
-                            "price": prod['price'],
-                            "unit": prod['unit'],
-                            "score": max_prob,
-                            "high_confidence": max_prob >= 0.65
-                        }
-        except Exception as e:
-            pass
-
-    # 2. Fuzzy fallback
+    # 1. Run word similarities / fuzzy matching first
     best_product = None
     best_score = 0.0
-    
-    clean_query = clean_text(raw_text)
-    query_words = set(clean_query.split())
+    query_words = set(cleaned_text.split())
     
     for prod in products:
         display_name = f"{prod['name']} {prod['brand']}"
-        score = get_similarity_score(raw_text, display_name)
+        score = get_similarity_score(cleaned_text, display_name)
         
-        score_name = get_similarity_score(raw_text, prod['name'])
+        score_name = get_similarity_score(cleaned_text, prod['name'])
         score = max(score, score_name)
         
         if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
-            score_desc = get_similarity_score(raw_text, prod['description'])
+            score_desc = get_similarity_score(cleaned_text, prod['description'])
             
             clean_desc = clean_text(prod['description'])
             desc_words = set(clean_desc.split())
@@ -146,6 +120,43 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
             best_score = score
             best_product = prod
             
+    # If we have an extremely high similarity match (>= 0.85), return it directly
+    if best_product and best_score >= 0.85:
+        return {
+            "product_id": best_product['id'],
+            "name": best_product['name'],
+            "brand": best_product['brand'],
+            "price": best_product['price'],
+            "unit": best_product['unit'],
+            "score": best_score,
+            "high_confidence": True
+        }
+
+    # 2. Otherwise, try model prediction if model is loaded
+    if _model_data and "pipeline" in _model_data:
+        try:
+            pipeline = _model_data["pipeline"]
+            pred_id = int(pipeline.predict([cleaned_text])[0])
+            probs = pipeline.predict_proba([cleaned_text])[0]
+            max_prob = max(probs)
+            
+            if pred_id != 0 and max_prob >= 0.65:
+                # Find product in list
+                for prod in products:
+                    if int(prod['id']) == pred_id:
+                        return {
+                            "product_id": prod['id'],
+                            "name": prod['name'],
+                            "brand": prod['brand'],
+                            "price": prod['price'],
+                            "unit": prod['unit'],
+                            "score": max_prob,
+                            "high_confidence": True
+                        }
+        except Exception as e:
+            pass
+
+    # 3. Fallback to the best fuzzy match if it satisfies the minimum threshold
     if best_product and best_score >= threshold:
         return {
             "product_id": best_product['id'],
