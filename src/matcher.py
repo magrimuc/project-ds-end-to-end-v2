@@ -1,6 +1,21 @@
 import pandas as pd
 import difflib
 import re
+import os
+import pickle
+
+# Load model pipeline
+_model_data = None
+_model_path = "src/model.pkl"
+if not os.path.exists(_model_path) and os.path.exists("project-ds-end-to-end-v2/src/model.pkl"):
+    _model_path = "project-ds-end-to-end-v2/src/model.pkl"
+    
+if os.path.exists(_model_path):
+    try:
+        with open(_model_path, "rb") as f:
+            _model_data = pickle.load(f)
+    except Exception as e:
+        print(f"Error loading model from {_model_path}: {e}")
 
 def load_products(csv_path: str = "data/products.csv") -> list:
     """Loads the products catalog from the CSV file."""
@@ -69,7 +84,35 @@ def get_similarity_score(str1: str, str2: str) -> float:
     return 0.4 * seq_ratio + 0.6 * overlap_ratio
 
 def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> dict:
-    """Finds the best matching product from the catalog for a given raw text."""
+    """Finds the best matching product from the catalog for a given raw text using ML classifier if available, with fuzzy fallback."""
+    
+    # 1. Try model prediction if model is loaded
+    if _model_data and "pipeline" in _model_data:
+        try:
+            pipeline = _model_data["pipeline"]
+            pred_id = int(pipeline.predict([raw_text])[0])
+            
+            # Predict probabilities to gauge confidence
+            probs = pipeline.predict_proba([raw_text])[0]
+            max_prob = max(probs)
+            
+            if pred_id != 0 and max_prob >= 0.65:
+                # Find product in list
+                for prod in products:
+                    if int(prod['id']) == pred_id:
+                        return {
+                            "product_id": prod['id'],
+                            "name": prod['name'],
+                            "brand": prod['brand'],
+                            "price": prod['price'],
+                            "unit": prod['unit'],
+                            "score": max_prob,
+                            "high_confidence": max_prob >= 0.65
+                        }
+        except Exception as e:
+            pass
+
+    # 2. Fuzzy fallback
     best_product = None
     best_score = 0.0
     
@@ -83,15 +126,12 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
         score_name = get_similarity_score(raw_text, prod['name'])
         score = max(score, score_name)
         
-        # Match against description if available
         if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
             score_desc = get_similarity_score(raw_text, prod['description'])
             
-            # If the query words are completely contained in the description words, give it a high score
             clean_desc = clean_text(prod['description'])
             desc_words = set(clean_desc.split())
             if query_words and query_words.issubset(desc_words):
-                # Ensure we don't cross Heft/Hefter separation
                 is_heft_q = any(w == "heft" for w in query_words)
                 is_hefter_d = any("hefter" in w for w in desc_words)
                 is_hefter_q = any("hefter" in w for w in query_words)

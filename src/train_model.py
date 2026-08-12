@@ -1,68 +1,70 @@
 import pandas as pd
-import numpy as np
 import pickle
 import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
 
 def train():
-    # Load dataset and catalog
+    # Load mapped data and catalog
+    mapped_path = "data/pdf_lines_mapped.csv"
+    if not os.path.exists(mapped_path):
+        mapped_path = "project-ds-end-to-end-v2/data/pdf_lines_mapped.csv"
+        
     products_path = "data/products.csv"
-    baskets_path = "data/shopping_baskets.csv"
-    
-    if not os.path.exists(products_path) or not os.path.exists(baskets_path):
-        raise FileNotFoundError("Products or shopping baskets file missing in data/")
+    if not os.path.exists(products_path):
+        products_path = "project-ds-end-to-end-v2/data/products.csv"
         
-    products_df = pd.read_csv(products_path)
-    baskets_df = pd.read_csv(baskets_path)
-    
-    # Get all unique product IDs
-    product_ids = sorted(products_df['id'].unique())
-    num_products = len(product_ids)
-    prod_id_to_idx = {pid: idx for idx, pid in enumerate(product_ids)}
-    
-    # Group by basket_id to build features
-    print("Preparing training features...")
-    grouped = baskets_df.groupby('basket_id')
-    
-    X_list = []
-    y_list = []
-    
-    for basket_id, group in grouped:
-        # Create a binary feature vector for this basket
-        feature_vector = np.zeros(num_products, dtype=int)
-        for _, row in group.iterrows():
-            pid = row['product_id']
-            if pid in prod_id_to_idx:
-                feature_vector[prod_id_to_idx[pid]] = 1
-                
-        # The target label is the school year
-        label = group.iloc[0]['schuljahr_label']
+    if not os.path.exists(mapped_path):
+        raise FileNotFoundError(f"Mapped lines file missing: {mapped_path}")
+    if not os.path.exists(products_path):
+        raise FileNotFoundError(f"Products file missing: {products_path}")
         
-        X_list.append(feature_vector)
-        y_list.append(label)
-        
-    X = np.array(X_list)
-    y = np.array(y_list)
+    df_mapped = pd.read_csv(mapped_path)
     
-    # Train a classifier
-    # Logistic Regression with L2 regularization is robust and fast for sparse binary features
-    from sklearn.linear_model import LogisticRegression
-    print("Training Logistic Regression classifier...")
-    model = LogisticRegression(max_iter=500, random_state=42)
-    model.fit(X, y)
+    # Fill NAs
+    df_mapped['raw_line'] = df_mapped['raw_line'].fillna("")
     
-    # Evaluate on training data
-    train_acc = model.score(X, y)
-    print(f"Training accuracy: {train_acc:.4f}")
+    # Filter out empty lines
+    df_mapped = df_mapped[df_mapped['raw_line'].str.strip() != ""]
     
-    # Save the model and mappings
+    X = df_mapped['raw_line'].values
+    y = df_mapped['product_id'].values
+    
+    print(f"Training on {len(X)} samples with {len(set(y))} unique product IDs...")
+    
+    # Use character n-grams to be extremely robust to OCR spelling errors
+    vectorizer = TfidfVectorizer(
+        analyzer='char_wb',
+        ngram_range=(3, 6),
+        min_df=1,
+        sublinear_tf=True
+    )
+    
+    classifier = LogisticRegression(
+        C=20.0,
+        class_weight='balanced',
+        max_iter=2000,
+        random_state=42
+    )
+    
+    pipeline = make_pipeline(vectorizer, classifier)
+    pipeline.fit(X, y)
+    
+    # Evaluate
+    train_acc = pipeline.score(X, y)
+    print(f"Training Accuracy: {train_acc:.4f}")
+    
+    # Save the model
     model_data = {
-        "model": model,
-        "product_ids": product_ids,
-        "prod_id_to_idx": prod_id_to_idx,
-        "classes": model.classes_
+        "pipeline": pipeline,
+        "classes": classifier.classes_
     }
     
     model_path = "src/model.pkl"
+    if not os.path.exists("src") and os.path.exists("project-ds-end-to-end-v2/src"):
+        model_path = "project-ds-end-to-end-v2/src/model.pkl"
+        
     with open(model_path, "wb") as f:
         pickle.dump(model_data, f)
         

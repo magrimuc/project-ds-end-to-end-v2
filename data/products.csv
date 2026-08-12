@@ -1,63 +1,65 @@
-id,name,brand,price,unit,description
-1001,Heft DINA4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen"
-1002,Heft DinA4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm"
-1003,Vokabelheft A5 Lineatur 53 (32 Blatt),Oxford,1.29,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen"
-1004,Bleistift HB Grip 2001,Faber-Castell,1.5,Stück,
-1005,Buntstifte 12er Set dreikant,Pelikan,4.99,Packung,
-1006,Radiergummi Plast-Clean,Läufer,0.8,Stück,
-1007,Füllfederhalter Safari M,Lamy,19.9,Stück,
-1008,Tintenpatronen blau T10 (5er Pack),Lamy,1.8,Packung,
-1009,Tuschkasten K12 (12 Farben),Pelikan,9.95,Stück,
-1010,Borstenpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,
-1011,Geodreieck 16 cm transparent,Aristo,1.2,Stück,
-1012,Schulkompass Zirkel,Staedtler,8.5,Stück,
-1013,Collegeblock A4 kariert (80 Blatt),Brunnen,1.79,Stück,
-1014,Zeichenblock A3 (20 Blatt),Clairefontaine,2.49,Stück,
-1015,Schnellhefter A4 Kunststoff blau,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1016,Schnellhefter A4 Kunststoff rot,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1017,Schnellhefter A4 Kunststoff grün,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1018,Anspitzer-Dose Trio Grip,Faber-Castell,2.99,Stück,
-1019,Lineal 30cm Kunststoff transparent,Brunnen,1.1,Stück,
-1020,Bastelschere rund 13cm Rechtshänder,Prym,2.2,Stück,
-1021,Umschlag rot Din A4,Brunnen,0.45,Stück,Einband
-1022,Umschlag grün Din A4,Brunnen,0.45,Stück,Einband
-1023,Umschlag blau Din A4,Brunnen,0.45,Stück,Einband
-1024,Umschlag weiß Din A4,Brunnen,0.45,Stück,Einband
-1025,Umschlag rot Din A5,Brunnen,0.45,Stück,Einband
-1026,Umschlag grün Din A5,Brunnen,0.45,Stück,Einband
-1027,Umschlag blau Din A5,Brunnen,0.45,Stück,Einband
-1028,Umschlag weiß Din A5,Brunnen,0.45,Stück,Einband
-1029,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen"
-1030,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm"
-1033,Heft DIN A5 Schreibhäuschen Lineatur 0 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 1, Vorschule, Schreibhäuschen, Kontrastlineatur"
-1034,Heft DIN A5 liniert Lineatur 1 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,"Schreiblernheft, Klasse 1, Vier Linien pro Zeile, Abstand 5mm, Kontrastlineatur"
-1035,Heft DIN A5 liniert Lineatur 2 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur"
-1036,Heft DIN A5 liniert Lineatur 3 (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 3, Zwei Linien, Abstand 3.5mm"
-1037,Heft DIN A5 liniert Lineatur 3R mit Rand (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 3, Zwei Linien, Abstand 3.5mm, mit weißem Rand"
-1038,Heft DIN A5 liniert Lineatur 4 (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 4, liniert, Abstand 10mm, Grundschule"
-1039,Heft DIN A5 kariert Lineatur 5 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen"
-1040,Heft DIN A5 kariert Lineatur 7 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 1 und Klasse 2, Große Kästchen 7x7mm, ohne Rand, Rechnen"
-1041,Heft DIN A5 kariert Lineatur 10 mit Umrandung (16 Blatt),Brunnen,0.99,Stück,"Schreiblernheft, Klasse 1, Vier Linien pro Zeile, Abstand 5mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert mit Rand, 5x5mm Kästchen, Rechenhefte, Mathematik"
-1042,Heft DIN A4 liniert Lineatur 25 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 4, liniert mit Rand, Abstand 10mm"
-1043,Heft DIN A4 kariert Lineatur 26 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert mit Rand, 5x5mm Kästchen"
-1044,Heft DIN A4 liniert Lineatur 27 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,"Regelheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, ab Klasse 5, liniert mit Doppelrand"
-1045,Heft DIN A4 kariert Lineatur 28 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, ab Klasse 5, kariert mit Doppelrand"
-1046,Schnellhefter A4 Kunststoff weiß,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1046,Heft DinA5 Vokabeln Lineatur 53 zweispaltig (16 Blatt),Brunnen,0.99,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen"
-1047,Haarpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,
-1047,Heft DinA4 Vokabeln Lineatur 54 dreispaltig (16 Blatt),Brunnen,0.99,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen"
-1048,Block buntes Tonpapier DinA4,Brunnen,2.99,Stück,
-1049,Eckspannmappe rot,Pelikan,2.3,Stück,"Dokumentenmappe, Sammelmappe"
-1050,Eckspannmappe blau,Pelikan,2.3,Stück,"Dokumentenmappe, Sammelmappe"
-1051,Eckspannmappe grün,Pelikan,2.3,Stück,"Dokumentenmappe, Sammelmappe"
-1052,Eckspannmappe weiß,Pelikan,2.3,Stück,"Dokumentenmappe, Sammelmappe"
-1053,Eckspannmappe gelb,Pelikan,2.3,Stück,"Dokumentenmappe, Sammelmappe"
-1054,Schnellhefter A4 Kunststoff schwarz,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1055,Schnellhefter A4 Kunststoff lila,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter"
-1056,Heft DIN A5 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft"
-1057,Heft DIN A4 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft"
-1058,Pelikan K12 blau Wasserfarbkasten 12 Farben,Pelikan,9.99,Stück,"Deckfarbkasten, Malkasten, Deckweiß"
-1059,Heft DIN A4 Lineatur 40 kariert mit umlaufendem Rand 16 Blatt,Brunnen,0.50,Stück,Schulheft
-1060,Umschlag hellblau Din A4,Brunnen,0.45,Stück,Einband
-1061,Umschlag dunkelblau Din A4,Brunnen,0.45,Stück,Einband
-1062,Umschlag transparent Din A4,Brunnen,0.45,Stück,Einband
+id,name,brand,price,unit,description,category
+1001,Heft DINA4 kariert Lineatur 22 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen",Hefte
+1002,Heft DinA4 liniert Lineatur 21 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm",Hefte
+1003,Vokabelheft A5 Lineatur 53 (32 Blatt),Oxford,1.29,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen",Hefte
+1004,Bleistift HB Grip 2001,Faber-Castell,1.5,Stück,,Sonstiges
+1005,Buntstifte 12er Set dreikant,Pelikan,4.99,Packung,,Sonstiges
+1006,Radiergummi Plast-Clean,Läufer,0.8,Stück,,Sonstiges
+1007,Füllfederhalter Safari M,Lamy,19.9,Stück,,Sonstiges
+1008,Tintenpatronen blau T10 (5er Pack),Lamy,1.8,Packung,,Sonstiges
+1009,Tuschkasten K12 (12 Farben),Pelikan,9.95,Stück,,Sonstiges
+1010,Borstenpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,,Sonstiges
+1011,Geodreieck 16 cm transparent,Aristo,1.2,Stück,,Sonstiges
+1012,Schulkompass Zirkel,Staedtler,8.5,Stück,,Sonstiges
+1013,Collegeblock A4 kariert (80 Blatt),Brunnen,1.79,Stück,,Sonstiges
+1014,Zeichenblock A3 (20 Blatt),Clairefontaine,2.49,Stück,,Sonstiges
+1015,Schnellhefter A4 Kunststoff blau,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1016,Schnellhefter A4 Kunststoff rot,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1017,Schnellhefter A4 Kunststoff grün,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1018,Anspitzer-Dose Trio Grip,Faber-Castell,2.99,Stück,,Sonstiges
+1019,Lineal 30cm Kunststoff transparent,Brunnen,1.1,Stück,,Sonstiges
+1020,Bastelschere rund 13cm Rechtshänder,Prym,2.2,Stück,,Sonstiges
+1021,Umschlag rot Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1022,Umschlag grün Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1023,Umschlag blau Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1024,Umschlag weiß Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1025,Umschlag rot Din A5,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1026,Umschlag grün Din A5,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1027,Umschlag blau Din A5,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1028,Umschlag weiß Din A5,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1029,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen",Hefte
+1030,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm",Hefte
+1031,Heft DIN A4 kariert Lineatur 22 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen",Hefte
+1032,Heft DIN A4 liniert Lineatur 21 ohne Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Klasse 4, liniert ohne Rand, Abstand 10mm",Hefte
+1033,Heft DIN A5 Schreibhäuschen Lineatur 0 (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 1, Vorschule, Schreibhäuschen, Kontrastlineatur",Hefte
+1034,Heft DIN A5 liniert Lineatur 1 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,"Schreiblernheft, Klasse 1, Vier Linien pro Zeile, Abstand 5mm, Kontrastlineatur",Hefte
+1035,Heft DIN A5 liniert Lineatur 2 mit Kontrast (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur",Hefte
+1036,Heft DIN A5 liniert Lineatur 3 (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 3, Zwei Linien, Abstand 3.5mm",Hefte
+1037,Heft DIN A5 liniert Lineatur 3R mit Rand (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 3, Zwei Linien, Abstand 3.5mm, mit weißem Rand",Hefte
+1038,Heft DIN A5 liniert Lineatur 4 (16 Blatt),Brunnen,0.99,Stück,"Mitteilungsheft, Klasse 4, liniert, Abstand 10mm, Grundschule",Hefte
+1039,Heft DIN A5 kariert Lineatur 5 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen",Hefte
+1040,Heft DIN A5 kariert Lineatur 7 (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 1 und Klasse 2, Große Kästchen 7x7mm, ohne Rand, Rechnen",Hefte
+1041,Heft DIN A5 kariert Lineatur 10 mit Umrandung (16 Blatt),Brunnen,0.99,Stück,"Schreiblernheft, Klasse 1, Vier Linien pro Zeile, Abstand 5mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert mit Rand, 5x5mm Kästchen, Rechenhefte, Mathematik",Hefte
+1042,Heft DIN A4 liniert Lineatur 25 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Schulheft, Schreibheft, Deutsch, Hausheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 4, liniert mit Rand, Abstand 10mm",Hefte
+1043,Heft DIN A4 kariert Lineatur 26 mit Rand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, Grundschule ab Klasse 2, kariert mit Rand, 5x5mm Kästchen",Hefte
+1044,Heft DIN A4 liniert Lineatur 27 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,"Regelheft, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, ab Klasse 5, liniert mit Doppelrand",Hefte
+1045,Heft DIN A4 kariert Lineatur 28 mit Doppelrand (16 Blatt),Brunnen,0.99,Stück,"Rechenhefte, Mathematik, Klasse 2, Vier Linien pro Zeile, Abstand 4mm, Kontrastlineatur, ab Klasse 5, kariert mit Doppelrand",Hefte
+1046,Schnellhefter A4 Kunststoff weiß,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1046,Heft DinA5 Vokabeln Lineatur 53 zweispaltig (16 Blatt),Brunnen,0.99,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen",Hefte
+1047,Haarpinsel-Set (Größen 4/8/12),Da Vinci,3.5,Set,,Sonstiges
+1047,Heft DinA4 Vokabeln Lineatur 54 dreispaltig (16 Blatt),Brunnen,0.99,Stück,"Grundschule ab Klasse 2, kariert ohne Rand, 5x5mm Kästchen, Rechenhefte, Mathematik, Vokabeln lernen, zweispaltig, dreispaltig, Fremdsprachen",Hefte
+1048,Block buntes Tonpapier DinA4,Brunnen,2.99,Stück,,Sonstiges
+1049,Eckspannmappe rot,Pelikan,2.3,Stück,,Dokumentenmappe / Eckspannmappe / Sammelordner
+1050,Eckspannmappe blau,Pelikan,2.3,Stück,,Dokumentenmappe / Eckspannmappe / Sammelordner
+1051,Eckspannmappe grün,Pelikan,2.3,Stück,,Dokumentenmappe / Eckspannmappe / Sammelordner
+1052,Eckspannmappe weiß,Pelikan,2.3,Stück,,Dokumentenmappe / Eckspannmappe / Sammelordner
+1053,Eckspannmappe gelb,Pelikan,2.3,Stück,,Dokumentenmappe / Eckspannmappe / Sammelordner
+1054,Schnellhefter A4 Kunststoff schwarz,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1055,Schnellhefter A4 Kunststoff lila,Durable,0.5,Stück,"für Klassenarbeiten, für Arbeitsblätter",Schnellhefter / Ordner
+1056,Heft DIN A5 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft",Hefte
+1057,Heft DIN A4 blanko Lineatur 6 (16 Blatt),Brunnen,0.99,Stück,"ohne Rand, freies Schreiben, Schulheft",Hefte
+1058,Pelikan K12 blau Wasserfarbkasten 12 Farben,Pelikan,9.99,Stück,"Deckfarbkasten, Malkasten, Deckweiß",Sonstiges
+1059,Heft DIN A4 Lineatur 40 kariert mit umlaufendem Rand 16 Blatt,Brunnen,0.5,Stück,Schulheft,Hefte
+1060,Umschlag hellblau Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1061,Umschlag dunkelblau Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
+1062,Umschlag transparent Din A4,Brunnen,0.45,Stück,Einband,Umschlag / Einband
