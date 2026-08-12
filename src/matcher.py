@@ -37,11 +37,15 @@ def clean_text(text: str) -> str:
     text = re.sub(r'schulheft', 'schul heft', text)
     text = re.sub(r'schreibheft', 'schreib heft', text)
     text = re.sub(r'hausheft', 'haus heft', text)
+    text = re.sub(r'hausaufgabenheft', 'haus aufgaben heft', text)
+    text = re.sub(r'hausaufgaben', 'haus aufgaben', text)
     text = re.sub(r'rechenheft', 'rechen heft', text)
     text = re.sub(r'vokabelheft', 'vokabel heft', text)
     text = re.sub(r'regelheft', 'regel heft', text)
     text = re.sub(r'mitteilungsheft', 'mitteilungs heft', text)
-    text = re.sub(r'schreiblernheft', 'schreiblern heft', text)
+    text = re.sub(r'schreiblernheft', 'schreib lern heft', text)
+    text = re.sub(r'schreiblern', 'schreib lern', text)
+    text = re.sub(r'schreibhäuschen', 'schreib häuschen', text)
     text = re.sub(r'doppelheft', 'doppel heft', text)
     text = re.sub(r'notenheft', 'noten heft', text)
     text = re.sub(r'arbeitsheft', 'arbeits heft', text)
@@ -52,6 +56,52 @@ def clean_text(text: str) -> str:
     
     text = re.sub(r'[^a-z0-9\säöüß]', ' ', text)
     return " ".join(text.split())
+
+def is_separated(words1: set, words2: set) -> bool:
+    """Returns True if the two word sets represent distinct categories that should not match."""
+    # 1. Heft vs Hefter
+    is_heft_1 = any(w == "heft" for w in words1)
+    is_hefter_1 = any("hefter" in w for w in words1)
+    is_heft_2 = any(w == "heft" for w in words2)
+    is_hefter_2 = any("hefter" in w for w in words2)
+    if (is_heft_1 and is_hefter_2) or (is_hefter_1 and is_heft_2):
+        return True
+        
+    # 2. Heft vs Umschlag/Hülle/Schoner
+    is_umschlag_1 = any(w in ["umschlag", "hülle", "schoner"] or "umschlag" in w or "hülle" in w or "schoner" in w for w in words1)
+    is_umschlag_2 = any(w in ["umschlag", "hülle", "schoner"] or "umschlag" in w or "hülle" in w or "schoner" in w for w in words2)
+    if (is_heft_1 and is_umschlag_2) or (is_umschlag_1 and is_heft_2):
+        return True
+        
+    # 3. Musik/Notenhefte
+    is_musik_prod = any(w in ["musik", "noten"] for w in words2)
+    is_musik_query = any(w in ["musik", "noten"] for w in words1)
+    if is_musik_prod and not is_musik_query:
+        return True
+        
+    # 4. Schreibhäuschen
+    is_haus_prod = any("haus" in w or "häus" in w for w in words2)
+    is_haus_query = any("haus" in w or "häus" in w for w in words1)
+    if is_haus_prod and not is_haus_query:
+        return True
+        
+    # 5. Ruling type mismatch (liniert, kariert, blanko)
+    is_liniert_1 = "liniert" in words1
+    is_kariert_1 = any(w in words1 for w in ["kariert", "rauten", "quadrate"])
+    is_blanko_1 = any(w in words1 for w in ["blanko", "unliniert"])
+    
+    is_liniert_2 = "liniert" in words2
+    is_kariert_2 = any(w in words2 for w in ["kariert", "rauten", "quadrate", "karo"])
+    is_blanko_2 = any(w in words2 for w in ["blanko", "unliniert"])
+    
+    if is_liniert_1 and (is_kariert_2 or is_blanko_2):
+        return True
+    if is_kariert_1 and (is_liniert_2 or is_blanko_2):
+        return True
+    if is_blanko_1 and (is_liniert_2 or is_kariert_2):
+        return True
+        
+    return False
 
 def get_similarity_score(str1: str, str2: str) -> float:
     """Computes a similarity score between two strings."""
@@ -64,13 +114,7 @@ def get_similarity_score(str1: str, str2: str) -> float:
     words1 = set(clean1.split())
     words2 = set(clean2.split())
     
-    # Ensure "heft" products and "hefter/schnellhefter" products are mutually exclusive
-    is_heft_1 = any(w == "heft" for w in words1)
-    is_hefter_1 = any("hefter" in w for w in words1)
-    is_heft_2 = any(w == "heft" for w in words2)
-    is_hefter_2 = any("hefter" in w for w in words2)
-    
-    if (is_heft_1 and is_hefter_2) or (is_hefter_1 and is_heft_2):
+    if is_separated(words1, words2):
         return 0.0
         
     seq_ratio = difflib.SequenceMatcher(None, clean1, clean2).ratio()
@@ -101,17 +145,14 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
         score = max(score, score_name)
         
         if 'description' in prod and isinstance(prod['description'], str) and prod['description'].strip():
-            score_desc = get_similarity_score(cleaned_text, prod['description'])
-            
             clean_desc = clean_text(prod['description'])
             desc_words = set(clean_desc.split())
-            if query_words and query_words.issubset(desc_words):
-                is_heft_q = any(w == "heft" for w in query_words)
-                is_hefter_d = any("hefter" in w for w in desc_words)
-                is_hefter_q = any("hefter" in w for w in query_words)
-                is_heft_d = any(w == "heft" for w in desc_words)
-                
-                if not ((is_heft_q and is_hefter_d) or (is_hefter_q and is_heft_d)):
+            
+            if is_separated(query_words, desc_words):
+                score_desc = 0.0
+            else:
+                score_desc = get_similarity_score(cleaned_text, prod['description'])
+                if query_words and query_words.issubset(desc_words):
                     score_desc = max(score_desc, 0.85)
                     
             score = max(score, score_desc)
