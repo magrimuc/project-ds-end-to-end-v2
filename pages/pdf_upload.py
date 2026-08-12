@@ -206,71 +206,17 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
             st.session_state.scan_results = new_results
             st.rerun()
         
-    col_submit, col_add = st.columns([2, 1])
-    with col_submit:
-        if st.button("Artikel in den Warenkorb übernehmen", type="primary", use_container_width=True):
-            if "cart" not in st.session_state:
-                st.session_state.cart = {}
-                
-            added = 0
-            for prod_id, qty in form_data:
-                if prod_id != 0:
-                    st.session_state.cart[prod_id] = st.session_state.cart.get(prod_id, 0) + qty
-                    added += 1
-                    
-            st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
-            st.session_state.scan_results = []
-            st.session_state.analyzed = False
-            st.rerun()
-    with col_add:
-        with st.popover("➕ Neuer Artikel", use_container_width=True):
-            st.markdown("### Artikel suchen & hinzufügen")
-            selected_prod = st.selectbox(
-                "Produkt auswählen:",
-                options=list(options.keys()),
-                format_func=lambda x: options[x],
-                key="manual_add_pdf_sel"
-            )
-            qty_manual = st.number_input("Menge:", min_value=1, value=1, step=1, key="manual_add_pdf_qty")
-            if st.button("Hinzufügen", key="manual_add_pdf_btn", type="primary", use_container_width=True):
-                if "cart" not in st.session_state:
-                    st.session_state.cart = {}
-                if selected_prod != 0:
-                    st.session_state.cart[selected_prod] = st.session_state.cart.get(selected_prod, 0) + qty_manual
-                    st.toast("Artikel hinzugefügt!")
-                    st.rerun()
-
-# --- WARENKORB & EMPFEHLUNGEN (Desktop) ---
-st.markdown("---")
-st.markdown("### 🛒 Ihr aktueller Warenkorb")
-
-if "cart" not in st.session_state or not st.session_state.cart:
-    st.write("Der Warenkorb ist leer.")
-else:
-    import pandas as pd
-    products_df = pd.read_csv("data/products.csv")
-    cart_rows = []
-    grand_total = 0.0
-    
-    for prod_id, qty in list(st.session_state.cart.items()):
-        prod_row = products_df[products_df['id'] == prod_id]
-        if not prod_row.empty:
-            row = prod_row.iloc[0]
-            total = row['price'] * qty
-            grand_total += total
-            cart_rows.append({
-                "ID": prod_id,
-                "Name": row['name'],
-                "Marke": row['brand'],
-                "Menge": qty,
-                "Einzelpreis": f"{row['price']:.2f} €",
-                "Gesamtpreis": f"{total:.2f} €"
-            })
+    if st.button("Artikel in den Warenkorb übernehmen", type="primary", use_container_width=True):
+        if "cart" not in st.session_state:
+            st.session_state.cart = {}
             
-    st.table(pd.DataFrame(cart_rows))
-    st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
-    
-    st.markdown("---")
-    if st.button("🗑️ Warenkorb leeren", key="clear_cart_pdf"):
-        st.session_state.cart = {}
-        st.rerun()
+        added = 0
+        for prod_id, qty in form_data:
+            if prod_id != 0:
+                st.session_state.cart[prod_id] = st.session_state.cart.get(prod_id, 0) + qty
+                added += 1
+                
+        st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
+        st.session_state.scan_results = []
+        st.session_state.analyzed = False
+        st.switch_page("pages/cart.py")
