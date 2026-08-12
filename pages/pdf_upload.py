@@ -220,3 +220,37 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         st.session_state.scan_results = []
         st.session_state.analyzed = False
         st.switch_page("pages/cart.py")
+
+# --- WARENKORB (unter PDF Upload) ---
+st.markdown("---")
+st.markdown("### 🛒 Ihr aktueller Warenkorb")
+
+if "cart" not in st.session_state or not st.session_state.cart:
+    st.write("Der Warenkorb ist leer.")
+else:
+    products_df = pd.read_csv("data/products.csv")
+    cart_rows = []
+    grand_total = 0.0
+    
+    for prod_id, qty in list(st.session_state.cart.items()):
+        prod_row = products_df[products_df['id'] == prod_id]
+        if not prod_row.empty:
+            row = prod_row.iloc[0]
+            total = row['price'] * qty
+            grand_total += total
+            cart_rows.append({
+                "ID": prod_id,
+                "Name": row['name'],
+                "Marke": row['brand'],
+                "Menge": qty,
+                "Einzelpreis": f"{row['price']:.2f} €",
+                "Gesamtpreis": f"{total:.2f} €"
+            })
+            
+    st.table(pd.DataFrame(cart_rows))
+    st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
+    
+    st.markdown("---")
+    if st.button("🗑️ Warenkorb leeren", key="clear_cart_pdf"):
+        st.session_state.cart = {}
+        st.rerun()
