@@ -91,7 +91,7 @@ if uploaded_pdf is not None:
                         "quantity": item['quantity'],
                         "best_match_id": best_match_id
                     })
-                
+                scan_results.sort(key=lambda x: 1 if x['best_match_id'] == 0 else 0)
                 st.session_state.scan_results = scan_results
                 st.session_state.last_analyzed_pdf = file_id
                 st.toast("Analyse erfolgreich abgeschlossen!")
