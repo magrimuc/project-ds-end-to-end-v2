@@ -10,6 +10,7 @@ st.markdown('<div class="main-header">🛒 Ihr Warenkorb</div>', unsafe_allow_ht
 st.markdown('<div class="sub-header">Hier finden Sie alle gesammelten Artikel aus Ihren Materiallisten.</div>', unsafe_allow_html=True)
 
 if not st.session_state.cart:
+    st.session_state.cart_source = None
     st.write("Der Warenkorb ist leer.")
 else:
     products_df = pd.read_csv("data/products.csv")
@@ -37,6 +38,7 @@ else:
     st.markdown("---")
     if st.button("🗑️ Warenkorb leeren", key="clear_cart_global"):
         st.session_state.cart = {}
+        st.session_state.cart_source = None
         st.rerun()
 
 # "+ Neuer Artikel" Popover under the cart

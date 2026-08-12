@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import sys
+import pandas as pd
 
 # Load local .env file
 if os.path.exists(".env"):
@@ -202,6 +203,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
         st.session_state.scan_results = []
         st.session_state.analyzed = False
+        st.session_state.cart_source = "pdf"
         st.switch_page("pages/cart.py")
 
 # --- WARENKORB (unter PDF Upload) ---

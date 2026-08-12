@@ -139,4 +139,5 @@ if st.session_state.scan_results:
                 
         st.success(f"{added} Artikel wurden erfolgreich hinzugefügt!")
         st.session_state.scan_results = []
+        st.session_state.cart_source = "foto"
         st.switch_page("pages/cart.py")  # Switch to global cart page programmatically

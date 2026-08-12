@@ -23,6 +23,11 @@ if not is_mobile and not st.session_state.override_device_detect:
     st.session_state.override_device_detect = True
     st.switch_page(pdf_page)
 
-# Render Navigation
-pg = st.navigation([foto_page, pdf_page, cart_page, pull_page])
+# Render Navigation (conditionally hide PDF page if populated via Foto)
+pages_to_show = [foto_page]
+if st.session_state.get("cart_source") != "foto":
+    pages_to_show.append(pdf_page)
+pages_to_show.extend([cart_page, pull_page])
+
+pg = st.navigation(pages_to_show)
 pg.run()
