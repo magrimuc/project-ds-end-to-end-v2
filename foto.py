@@ -88,6 +88,7 @@ with tab_scan:
                     parsed_items = parse_ocr_text(raw_text)
 
                     # Korrigiere Farben in den geparsten Artikeln
+                    scan_results = []
                     for item in parsed_items:
                         match = find_best_match(item['raw_text'], products_list)
                         best_match_id = match['product_id'] if match else 0
