@@ -42,6 +42,10 @@ class TextOptimizer:
         """
         Optimizes a single line of OCR text using rule-based enhancements.
         """
+        # Eliminate non-readable characters, keeping only readable alphanumeric, German umlauts/ß, and spaces
+        line = re.sub(r'[^A-Za-z0-9äöüßÄÖÜ\s]', ' ', line)
+        line = " ".join(line.split())
+        
         # Save quantity if it's there (e.g. "3x ", "2 ")
         qty_match = re.match(
             r'^(\s*\d+\s*(?:x|X|stk\.?|Stk\.?|stück|Stück|stck\.?|Stck\.?|pack\.?|Pack\.?|pck\.?|Pck\.?|pkg\.?|Pkg\.?|packung|Packung|set|Set)?\s+)(.*)$',
