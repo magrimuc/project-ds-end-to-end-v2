@@ -5,9 +5,6 @@
 __pycache__/
 *.pyc
 
-# Data & serialized models
-src/*.pkl
-src/model.pkl
 
 # IDE and OS files
 .vscode/
