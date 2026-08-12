@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from src.ocr_engine import run_local_ocr
 from src.parser import parse_ocr_text
 from src.matcher import load_products, find_best_match
+from src.text_optimizer import TextOptimizer
 
 # Initialize cart and scan state
 if "cart" not in st.session_state:
@@ -26,26 +27,6 @@ def reset_scan_state():
     st.session_state.raw_text = ""
     if "last_analyzed_foto" in st.session_state:
         del st.session_state["last_analyzed_foto"]
-
-def correct_colors(t):
-    colors = {"orange","rot","gelb","grün","schwarz","lila","weiß","transparent"}
-    pat = re.compile(r'\b('+'|'.join(map(re.escape, colors))+r')\b', re.I)
-    out = []
-    for line in t.splitlines():
-        line = line.strip()
-        if not line: continue
-        found = {m.group(0).lower() for m in pat.finditer(line)}
-        if len(found) <= 1:
-            out.append(line)
-        else:
-            # entferne alle Farben aus der Zeile
-            cleaned = line
-            for c in found:
-                cleaned = re.sub(r'\b'+re.escape(c)+r'\b', '', cleaned, flags=re.I)
-            cleaned = re.sub(r'\s+', ' ', cleaned).strip(' ,')
-            if cleaned: out.append(cleaned)
-            out.extend(sorted(found))
-    return '\n'.join(out)
 
 # App Header
 st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
@@ -75,13 +56,8 @@ with tab_scan:
                     doc_bytes = uploaded_file.getvalue()
                     products_list = load_products("data/products.csv")
                     raw_text = run_local_ocr(doc_bytes)
-                    # Ersetze DINAS (auch dinas, Dinas, etc.) durch DIN A5
-                    raw_text = re.sub(r'(?i)DINAS', 'DIN A5', raw_text)
-                    raw_text = re.sub(r'(?i)DIN AS', 'DIN A5', raw_text)
-                    # Ersetze DINAt (auch dinat, DinaT, etc.) durch DIN A4
-                    raw_text = re.sub(r'(?i)DINAt', 'DIN A4', raw_text)
-                    raw_text = re.sub(r'(?i)DIN At', 'DIN A4', raw_text)
-                    raw_text = correct_colors(raw_text)
+                    optimizer = TextOptimizer()
+                    raw_text = optimizer.optimize(raw_text)
 
                     
                     st.session_state.raw_text = raw_text
