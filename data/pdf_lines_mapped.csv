@@ -1,12 +1,12 @@
 raw_line,product_id,quantity
 (!!!),0,0
-(1),1033,1
+(1),,0,0
 (27.08.2025) in die Schule mit.,0,0
 (= 1 Schul- und Hausheft + 1 Regelheft),1034,1
 (= Schul- und Hausheft),1002,1
 (Bitte	beim	Kauf	auf	Rechts-	oder,0,0
 (Das Papier wird gemeinsam gesammelt und muss nicht beschriftet werden!),0,0
-"(HB, 2B)",0,0
+"(HB, 2B)",1004,1
 (Lineatur),1002,1
 "(Musik), rot (Tests), orange (Freiarbeit)",1049,1
 "(Schreibwarenladen, Drogeriemarkt,…) vorrätig.",0,0
@@ -111,9 +111,9 @@ raw_line,product_id,quantity
 1 Lineal (ca. 16cm),1036,1
 1 Lineal 60°-30° Winkel,1038,1
 "1 Lineal, circa 15-20 cm",1036,1
-1 Malblock DIN A 3,0,0
+1 Malblock DIN A 3,1032,1
 1 Malblock DIN A4,1001,1
-"1 Malblock, DIN A 4",0,0
+"1 Malblock, DIN A 4",1032,1
 1 Malki%el (oder altes T-Shirt/Hemd),0,0
 1 Malkittel (altes Hemd o.Ä.),0,0
 "1 Malkittel (altes T-Shirt, altes Hemd)",0,0
@@ -275,10 +275,10 @@ raw_line,product_id,quantity
 1x weiß (Leistungsnachweise),1052,1
 1x weißer DIN A4 Einband,1021,1
 1x weißer Schnellhefter,1015,1
-2	dicke	Bleistifte,0,0
-2	dicke	Dreikantbleistifte,0,0
-"2 Bleis4,e",0,0
-2 Bleistifte,0,0
+2	dicke	Bleistifte,1004,2
+2	dicke	Dreikantbleistifte,1004,2
+"2 Bleis4,e",1004,2
+2 Bleistifte,1004,2
 "2 Borstenpinsel (Nr. 4, 8)",1010,2
 2 Borstenpinsel (Nr. 8 und 12),1010,2
 "2 Eckspannmappen DIN A4 (Postmappe, Sammelmappe)",0,0
@@ -292,14 +292,14 @@ raw_line,product_id,quantity
 2 Klebestifte (ohne Glitzer und Farbe),0,0
 "2 Klebestifte, 40g, farblos (Uhu oder Pritt)",0,0
 "2 Schreibhefte DIN A5, Lineatur 1",1034,2
-"2 dünne Bleistifte (weich, HB)",0,0
+"2 dünne Bleistifte (weich, HB)",1004,2
 2 gelbe Umschläge DIN A4,1024,2
 2 große Klebestifte,0,0
 "2 gute Radiergummi (keine Knete, Tierchen,etc.)",0,0
 2 rote Umschläge (Beschriftung: Deutsch),0,0
 2 x DIN A4,1001,2
 "20 karierte Blätter ohne Rand in einem weißen Schnellhefter, 1 Musikheft",0,0
-27),1044,1
+27),0,0
 "2x	dicke,	weiche	Bleistifte		(am	besten	Dreiecksform	mit	Griffhilfe)",0,0
 2x blauer DIN A4 Einband,1021,2
 2x durchsichtiger Umschlag,0,0
