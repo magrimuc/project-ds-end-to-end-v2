@@ -62,13 +62,13 @@ if not st.session_state.scan_results:
                     products_list = load_products("data/products.csv")
                     raw_text = run_local_ocr(doc_bytes)
                     
-                    optimizer = TextOptimizer()
-                    raw_text = optimizer.optimize(raw_text)
-                    
-                    # Export raw text to a text file
+                    # Export raw text (before optimization) to a text file
                     txt_path = os.path.join(os.path.dirname(__file__), "data", "ocr_raw_text.txt")
                     with open(txt_path, "w", encoding="utf-8") as text_file:
                         text_file.write(raw_text)
+                    
+                    optimizer = TextOptimizer()
+                    raw_text = optimizer.optimize(raw_text)
                     
                     st.session_state.raw_text = raw_text
                     parsed_items = parse_ocr_text(raw_text)
