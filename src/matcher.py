@@ -3,6 +3,7 @@ import difflib
 import re
 import os
 import pickle
+from src.text_optimizer import clean_text
 
 # Load model pipeline
 _model_data = None
@@ -25,37 +26,6 @@ def load_products(csv_path: str = "data/products.csv") -> list:
     except Exception as e:
         print(f"Error loading products: {e}")
         return []
-
-def clean_text(text: str) -> str:
-    """Cleans text for better matching comparison."""
-    text = text.lower()
-    
-    # Normalize din a4 / din a5
-    text = re.sub(r'dina(\d)', r'din a\1', text)
-    
-    # Normalize compound nouns containing "heft"
-    text = re.sub(r'schulheft', 'schul heft', text)
-    text = re.sub(r'schreibheft', 'schreib heft', text)
-    text = re.sub(r'hausheft', 'haus heft', text)
-    text = re.sub(r'hausaufgabenheft', 'haus aufgaben heft', text)
-    text = re.sub(r'hausaufgaben', 'haus aufgaben', text)
-    text = re.sub(r'rechenheft', 'rechen heft', text)
-    text = re.sub(r'vokabelheft', 'vokabel heft', text)
-    text = re.sub(r'regelheft', 'regel heft', text)
-    text = re.sub(r'mitteilungsheft', 'mitteilungs heft', text)
-    text = re.sub(r'schreiblernheft', 'schreib lern heft', text)
-    text = re.sub(r'schreiblern', 'schreib lern', text)
-    text = re.sub(r'schreibhäuschen', 'schreib häuschen', text)
-    text = re.sub(r'doppelheft', 'doppel heft', text)
-    text = re.sub(r'notenheft', 'noten heft', text)
-    text = re.sub(r'arbeitsheft', 'arbeits heft', text)
-    text = re.sub(r'übungsheft', 'übungs heft', text)
-    
-    # Normalize pappschnellhefter to schnellhefter
-    text = re.sub(r'pappschnellhefter', 'papp schnellhefter', text)
-    
-    text = re.sub(r'[^a-z0-9\säöüß]', ' ', text)
-    return " ".join(text.split())
 
 def is_separated(words1: set, words2: set) -> bool:
     """Returns True if the two word sets represent distinct categories that should not match."""
