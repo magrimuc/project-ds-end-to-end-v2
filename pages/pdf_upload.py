@@ -18,6 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.ocr_engine import extract_text_from_pdf
 from src.parser import parse_ocr_text
+from src.text_optimizer import TextOptimizer
 from src.matcher import load_products, find_best_match, predict_subject, predict_document_level
 
 st.set_page_config(
@@ -63,6 +64,10 @@ gemini_key = os.environ.get("GEMINI_API_KEY", "")
 def reset_pdf_state():
     if "raw_text" in st.session_state:
         del st.session_state["raw_text"]
+    if "raw_ocr_text" in st.session_state:
+        del st.session_state["raw_ocr_text"]
+    if "optimized_with_cl_info" in st.session_state:
+        del st.session_state["optimized_with_cl_info"]
     if "last_analyzed_pdf" in st.session_state:
         del st.session_state["last_analyzed_pdf"]
     st.session_state.scan_results = []
@@ -75,7 +80,11 @@ if uploaded_pdf is not None:
     if st.session_state.get("last_analyzed_pdf") != file_id:
         with st.spinner("PDF wird automatisch analysiert..."):
             try:
-                raw_text = extract_text_from_pdf(uploaded_pdf.getvalue())
+                raw_ocr = extract_text_from_pdf(uploaded_pdf.getvalue())
+                st.session_state.raw_ocr_text = raw_ocr
+                
+                optimizer = TextOptimizer()
+                raw_text = optimizer.optimize(raw_ocr)
                 st.session_state.raw_text = raw_text
                 
                 products_list = load_products("data/products.csv")
@@ -88,8 +97,10 @@ if uploaded_pdf is not None:
                 doc_level = predict_document_level(lines_for_level)
 
                 scan_results = []
+                cl_info_lines = []
                 for item in parsed_items:
                     line_subject = predict_subject(item['raw_text'])
+                    cl_info_lines.append(f"Line: {item['raw_text']} | Level: {doc_level or 'Allgemein'} | Subject: {line_subject or 'Allgemein'}")
                     match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=line_subject)
                     best_match_id = match['product_id'] if match else 0
                     scan_results.append({
@@ -97,6 +108,7 @@ if uploaded_pdf is not None:
                         "quantity": item['quantity'],
                         "best_match_id": best_match_id
                     })
+                st.session_state.optimized_with_cl_info = "\n".join(cl_info_lines)
                 scan_results.sort(key=lambda x: 1 if x['best_match_id'] == 0 else 0)
                 st.session_state.scan_results = scan_results
                 st.session_state.last_analyzed_pdf = file_id
@@ -114,45 +126,52 @@ if uploaded_pdf is not None:
     
     with col_copy:
         import urllib.parse
-        encoded_text = urllib.parse.quote(st.session_state.get("raw_text", ""))
+        encoded_ocr = urllib.parse.quote(st.session_state.get("raw_ocr_text", ""))
+        encoded_opt = urllib.parse.quote(st.session_state.get("raw_text", ""))
+        encoded_cl = urllib.parse.quote(st.session_state.get("optimized_with_cl_info", ""))
+        
         js_code = f"""
-        <div id="copy-box" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-            <span>📄 Dokument geladen: <strong>{uploaded_pdf.name}</strong></span>
-            <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des erfassten Rohtexts</span>
+        <div style="display: flex; gap: 8px; font-family: sans-serif; height: 38px; align-items: center; width: 100%;">
+            <button id="btn-ocr" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Raw Text (OCR)</button>
+            <button id="btn-opt" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Optimized Text</button>
+            <button id="btn-cl" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Optimized + Cl Info</button>
         </div>
         <script>
-        document.getElementById('copy-box').addEventListener('click', () => {{
-            const text = decodeURIComponent("{encoded_text}");
+        function copyText(encodedText, successMsg) {{
+            const text = decodeURIComponent(encodedText);
             if (navigator.clipboard && navigator.clipboard.writeText) {{
                 navigator.clipboard.writeText(text).then(() => {{
-                    alert('Rohtext wurde in die Zwischenablage kopiert!');
+                    alert(successMsg);
                 }}).catch(err => {{
-                    fallbackCopy(text);
+                    fallbackCopy(text, successMsg);
                 }});
             }} else {{
-                fallbackCopy(text);
+                fallbackCopy(text, successMsg);
             }}
-        }});
-        function fallbackCopy(text) {{
+        }}
+        function fallbackCopy(text, successMsg) {{
             const textArea = document.createElement("textarea");
             textArea.value = text;
             document.body.appendChild(textArea);
             textArea.select();
             try {{
                 document.execCommand('copy');
-                alert('Rohtext wurde in die Zwischenablage kopiert!');
+                alert(successMsg);
             }} catch (err) {{
-                alert('Kopieren fehlgeschlagen.');
+                alert('Copy failed.');
             }}
             document.body.removeChild(textArea);
         }}
+        document.getElementById('btn-ocr').addEventListener('click', () => copyText("{encoded_ocr}", "Raw OCR text copied to clipboard!"));
+        document.getElementById('btn-opt').addEventListener('click', () => copyText("{encoded_opt}", "Optimized raw text copied to clipboard!"));
+        document.getElementById('btn-cl').addEventListener('click', () => copyText("{encoded_cl}", "Optimized text with cluster info copied to clipboard!"));
         </script>
         """
         import streamlit.components.v1 as components
-        components.html(js_code, height=50)
+        components.html(js_code, height=45)
         
     with col_show:
-        st.link_button("📄 Dokument anzeigen", data_url, use_container_width=True)
+        st.link_button("📄 View Document", data_url, use_container_width=True)
 
 # If we have scan results, show verification UI
 if "scan_results" in st.session_state and st.session_state.scan_results:
