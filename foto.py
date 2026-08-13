@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from src.ocr_engine import run_local_ocr
 from src.parser import parse_ocr_text
-from src.matcher import load_products, find_best_match
+from src.matcher import load_products, find_best_match, predict_subject, predict_document_level
 from src.text_optimizer import TextOptimizer
 
 # Initialize cart and scan state
@@ -73,9 +73,14 @@ if not st.session_state.scan_results:
                     st.session_state.raw_text = raw_text
                     parsed_items = parse_ocr_text(raw_text)
 
+                    # Predict document level
+                    lines_for_level = [item['raw_text'] for item in parsed_items]
+                    doc_level = predict_document_level(lines_for_level)
+
                     scan_results = []
                     for item in parsed_items:
-                        match = find_best_match(item['raw_text'], products_list)
+                        line_subject = predict_subject(item['raw_text'])
+                        match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=line_subject)
                         best_match_id = match['product_id'] if match else 0
                         scan_results.append({
                             "raw_text": item['raw_text'],

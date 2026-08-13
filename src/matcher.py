@@ -329,3 +329,38 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3, level
         }
         
     return None
+
+def predict_subject(line: str) -> str:
+    if _model_data is None or "subject_pipeline" not in _model_data:
+        return None
+    pipeline_subj = _model_data["subject_pipeline"]
+    try:
+        pred_subject = pipeline_subj.predict([line])[0]
+        return pred_subject
+    except Exception as e:
+        print(f"Error predicting subject: {e}")
+    return None
+
+def predict_document_level(lines: list) -> str:
+    if not lines or _model_data is None or "level_pipeline" not in _model_data:
+        return None
+    pipeline_lvl = _model_data["level_pipeline"]
+    try:
+        import numpy as np
+        probas = []
+        for line in lines:
+            if line.strip():
+                prob = pipeline_lvl.predict_proba([line])[0]
+                probas.append(prob)
+        if not probas:
+            return None
+        avg_proba = np.mean(probas, axis=0)
+        best_idx = np.argmax(avg_proba)
+        best_conf = avg_proba[best_idx]
+        best_class = pipeline_lvl.classes_[best_idx]
+        
+        if best_conf >= 0.75:
+            return str(best_class)
+    except Exception as e:
+        print(f"Error predicting document level: {e}")
+    return None
