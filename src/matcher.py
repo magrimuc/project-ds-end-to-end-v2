@@ -177,7 +177,36 @@ def get_similarity_score(str1: str, str2: str) -> float:
     
     return 0.4 * seq_ratio + 0.6 * overlap_ratio
 
-def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> dict:
+def is_metadata_compatible(level_query: str, level_prod: str, subject_query: str, subject_prod: str) -> bool:
+    if subject_query and subject_prod:
+        if subject_query != 'Allgemein' and subject_prod != 'Allgemein':
+            if subject_query.lower() != subject_prod.lower():
+                return False
+                
+    if level_query and level_prod:
+        if level_query != 'Allgemein' and level_prod != 'Allgemein':
+            def get_all_levels(lvl_str):
+                levels = set()
+                range_match = re.search(r'(\d+)\s*[-–]\s*(\d+)', lvl_str)
+                if range_match:
+                    start, end = int(range_match.group(1)), int(range_match.group(2))
+                    return set(range(start, end + 1))
+                plus_match = re.search(r'(\d+)\s*\+', lvl_str)
+                if plus_match:
+                    start = int(plus_match.group(1))
+                    return set(range(start, start + 5))
+                single_match = re.findall(r'\d+', lvl_str)
+                for num in single_match:
+                    levels.add(int(num))
+                return levels
+            
+            q_set = get_all_levels(level_query)
+            p_set = get_all_levels(level_prod)
+            if q_set and p_set and not q_set.intersection(p_set):
+                return False
+    return True
+
+def find_best_match(raw_text: str, products: list, threshold: float = 0.3, level: str = None, subject: str = None) -> dict:
     """Finds the best matching product from the catalog for a given raw text using SentenceTransformer semantic similarity and ML classifier."""
     # Clean the input text at the very beginning of the decision process
     cleaned_text = clean_text(raw_text)
@@ -192,6 +221,11 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
         try:
             query_emb = model.encode(cleaned_text, convert_to_tensor=True)
             for prod in products:
+                # Apply metadata filtering
+                if not is_metadata_compatible(level, prod.get('level'), subject, prod.get('subject')):
+                    score = 0.0
+                    continue
+                    
                 # Apply separation rules to display name
                 display_name = f"{prod['name']} {prod['brand']}"
                 words_name = set(clean_text(display_name).split())
@@ -220,6 +254,10 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3) -> di
     # Fuzzy match fallback if model failed or couldn't load
     if model is None:
         for prod in products:
+            # Apply metadata filtering
+            if not is_metadata_compatible(level, prod.get('level'), subject, prod.get('subject')):
+                continue
+                
             display_name = f"{prod['name']} {prod['brand']}"
             
             # Apply separation rules to display name
