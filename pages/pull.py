@@ -8,13 +8,13 @@ st.set_page_config(
 )
 
 st.markdown('<div class="main-header">🔄 Git Pull & Daemon Restart</div>', unsafe_allow_html=True)
-st.write("Führt einen Git Pull und einen Neustart des Streamlit-Dienstes auf dem Server aus.")
+st.write("Performs a Git pull and restarts the Streamlit daemon on the server.")
 
-if st.button("Projekt aktualisieren und neu starten", type="primary"):
-    with st.spinner("Führe Aktualisierung aus..."):
+if st.button("Update Project & Restart", type="primary"):
+    with st.spinner("Performing update..."):
         # 1. cd & git pull
         try:
-            st.info("Führe 'git pull' aus...")
+            st.info("Running 'git pull'...")
             # We execute in the correct working directory
             res_pull = subprocess.run(
                 "git pull", 
@@ -25,11 +25,11 @@ if st.button("Projekt aktualisieren und neu starten", type="primary"):
             )
             st.code(f"Git Pull Output:\nStdout:\n{res_pull.stdout}\nStderr:\n{res_pull.stderr}")
         except Exception as e:
-            st.error(f"Fehler bei git pull: {e}")
+            st.error(f"Error during git pull: {e}")
             
         # 2. restart systemd service
         try:
-            st.info("Starte Streamlit-Dienst neu...")
+            st.info("Restarting Streamlit service...")
             # Note: sudoers file must allow passwordless restart for www-data/running user:
             # www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart streamlit-schulbedarf.service
             res_restart = subprocess.run(
@@ -39,9 +39,9 @@ if st.button("Projekt aktualisieren und neu starten", type="primary"):
                 text=True
             )
             if res_restart.returncode == 0:
-                st.success("Erfolgreich! Der Service wird neu gestartet. Bitte laden Sie die Seite in Kürze neu.")
+                st.success("Success! The service is restarting. Please reload the page in a few moments.")
             else:
-                st.error(f"Fehler beim Dienst-Neustart (Exit-Code {res_restart.returncode}):\n{res_restart.stderr}")
-                st.warning("⚠️ Bitte stellen Sie sicher, dass der Linux-Benutzer, unter dem Streamlit läuft, diesen Befehl ohne Passworteingabe per `sudo` ausführen darf.")
+                st.error(f"Error restarting service (Exit code {res_restart.returncode}):\n{res_restart.stderr}")
+                st.warning("⚠️ Please ensure that the Linux user running Streamlit is allowed to execute this command via sudo without password prompting.")
         except Exception as e:
-            st.error(f"Fehler bei der Ausführung des Neustarts: {e}")
+            st.error(f"Error executing restart: {e}")

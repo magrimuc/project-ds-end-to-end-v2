@@ -33,30 +33,30 @@ def reset_scan_state():
         del st.session_state["last_analyzed_foto"]
 
 # App Header
-st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Optimiert für Mobilgeräte. Fotografieren Sie eine Materialliste ab, um sie direkt zu digitalisieren.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🎒 School Supplies Photo Scanner</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Optimized for mobile devices. Take a photo of a school list to digitize it instantly.</div>', unsafe_allow_html=True)
 
 # Document view button placed at the top if a document is loaded
 if st.session_state.get("data_url"):
-    st.link_button("📄 Dokument anzeigen", st.session_state.data_url, use_container_width=True)
+    st.link_button("📄 View Document", st.session_state.data_url, use_container_width=True)
 
-st.markdown("### 1. Zettel abfotografieren oder Bild hochladen")
+st.markdown("### 1. Take a photo or upload an image")
 
 # Hide input controls if we already have scan results (until committed)
 if not st.session_state.scan_results:
-    source_type = st.radio("Eingabequelle wählen:", ["Kamera benutzen", "Bild hochladen"], horizontal=True, on_change=reset_scan_state)
+    source_type = st.radio("Choose input source:", ["Use Camera", "Upload Image"], horizontal=True, on_change=reset_scan_state)
     
     uploaded_file = None
-    if source_type == "Bild hochladen":
-        uploaded_file = st.file_uploader("Bild (PNG, JPG, JPEG, WEBP) auswählen...", type=["png", "jpg", "jpeg", "webp"], on_change=reset_scan_state)
+    if source_type == "Upload Image":
+        uploaded_file = st.file_uploader("Choose image (PNG, JPG, JPEG, WEBP)...", type=["png", "jpg", "jpeg", "webp"], on_change=reset_scan_state)
     else:
-        uploaded_file = st.camera_input("Foto der Materialliste aufnehmen", on_change=reset_scan_state)
+        uploaded_file = st.camera_input("Take a photo of the school list", on_change=reset_scan_state)
         
     if uploaded_file is not None:
         file_id = f"{uploaded_file.name}_{uploaded_file.size}" if hasattr(uploaded_file, "name") else "camera_photo"
         
         if st.session_state.get("last_analyzed_foto") != file_id:
-            with st.spinner("Foto wird automatisch analysiert..."):
+            with st.spinner("Analyzing photo automatically..."):
                 try:
                     doc_bytes = uploaded_file.getvalue()
                     products_list = load_products("data/products.csv")
@@ -91,24 +91,24 @@ if not st.session_state.scan_results:
                     mime = uploaded_file.type if hasattr(uploaded_file, "type") else "image/png"
                     st.session_state.data_url = f"data:{mime};base64,{b64}"
                     
-                    st.toast("Analyse erfolgreich abgeschlossen!")
+                    st.toast("Analysis completed successfully!")
                     st.rerun()
                 except Exception as e:
-                    st.error(f"Fehler bei der automatischen Analyse: {e}")
+                    st.error(f"Error during automatic analysis: {e}")
 
 # If we have scan results, show verification UI
 if st.session_state.scan_results:
-    st.markdown("### 2. Erkannte Produkte verifizieren")
+    st.markdown("### 2. Verify detected products")
     
     products_df = pd.read_csv("data/products.csv")
     options = {row['id']: f"{row['name']} ({row['brand']}) - {row['price']:.2f} €" for _, row in products_df.iterrows()}
-    options[0] = "-- Kein passendes Produkt --"
+    options[0] = "-- No matching product --"
     
     form_data = []
     col1, col2, col3 = st.columns([4, 6, 2])
-    col1.markdown("**Erkannter Text**")
-    col2.markdown("**Katalog-Produkt**")
-    col3.markdown("**Menge**")
+    col1.markdown("**Detected Text**")
+    col2.markdown("**Catalog Product**")
+    col3.markdown("**Quantity**")
     
     for i, res in enumerate(st.session_state.scan_results):
         c_text, c_match, c_qty = st.columns([4, 6, 2])
@@ -117,7 +117,7 @@ if st.session_state.scan_results:
         default_id = res['best_match_id'] if res['best_match_id'] in options else 0
         
         sel_id = c_match.selectbox(
-            f"Produkt {i}",
+            f"Product {i}",
             options=list(options.keys()),
             format_func=lambda x: options[x],
             index=list(options.keys()).index(default_id),
@@ -126,7 +126,7 @@ if st.session_state.scan_results:
         )
         
         qty = c_qty.number_input(
-            f"Menge {i}",
+            f"Quantity {i}",
             min_value=1,
             value=int(res['quantity']),
             step=1,
@@ -135,14 +135,14 @@ if st.session_state.scan_results:
         )
         form_data.append((sel_id, qty))
         
-    if st.button("Ausgewählte Artikel in den Warenkorb übernehmen", type="primary", use_container_width=True):
+    if st.button("Add selected items to cart", type="primary", use_container_width=True):
         added = 0
         for prod_id, qty in form_data:
             if prod_id != 0:
                 st.session_state.cart[prod_id] = st.session_state.cart.get(prod_id, 0) + qty
                 added += 1
                 
-        st.success(f"{added} Artikel wurden erfolgreich hinzugefügt!")
+        st.success(f"{added} items successfully added!")
         st.session_state.scan_results = []
         st.session_state.cart_source = "foto"
         st.switch_page("pages/cart.py")  # Switch to global cart page programmatically

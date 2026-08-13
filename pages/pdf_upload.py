@@ -21,7 +21,7 @@ from src.parser import parse_ocr_text
 from src.matcher import load_products, find_best_match
 
 st.set_page_config(
-    page_title="PDF Bestellzettel Upload",
+    page_title="PDF Order List Upload",
     page_icon="📄",
     layout="wide"
 )
@@ -54,8 +54,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header">📄 PDF-Bestellzettel Analysieren</div>', unsafe_allow_html=True)
-st.write("Laden Sie die digitale PDF-Materialliste der Schule hoch, um Artikel automatisch zu extrahieren.")
+st.markdown('<div class="main-header">📄 Analyze PDF Order List</div>', unsafe_allow_html=True)
+st.write("Upload the school's digital PDF supply list to extract items automatically.")
 
 # Load env key for Gemini API
 gemini_key = os.environ.get("GEMINI_API_KEY", "")
@@ -67,13 +67,13 @@ def reset_pdf_state():
         del st.session_state["last_analyzed_pdf"]
     st.session_state.scan_results = []
 
-uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"], on_change=reset_pdf_state)
+uploaded_pdf = st.file_uploader("Upload PDF file...", type=["pdf"], on_change=reset_pdf_state)
 
 if uploaded_pdf is not None:
     file_id = f"{uploaded_pdf.name}_{uploaded_pdf.size}"
     
     if st.session_state.get("last_analyzed_pdf") != file_id:
-        with st.spinner("PDF wird automatisch analysiert..."):
+        with st.spinner("Analyzing PDF automatically..."):
             try:
                 raw_text = extract_text_from_pdf(uploaded_pdf.getvalue())
                 st.session_state.raw_text = raw_text
@@ -95,10 +95,10 @@ if uploaded_pdf is not None:
                 scan_results.sort(key=lambda x: 1 if x['best_match_id'] == 0 else 0)
                 st.session_state.scan_results = scan_results
                 st.session_state.last_analyzed_pdf = file_id
-                st.toast("Analyse erfolgreich abgeschlossen!")
+                st.toast("Analysis completed successfully!")
                 st.rerun()
             except Exception as e:
-                st.error(f"Fehler bei der automatischen Analyse: {e}")
+                st.error(f"Error during automatic analysis: {e}")
 
     # Display side-by-side copy-box and Document Show button
     import base64
@@ -112,15 +112,15 @@ if uploaded_pdf is not None:
         encoded_text = urllib.parse.quote(st.session_state.get("raw_text", ""))
         js_code = f"""
         <div id="copy-box" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: rgba(28, 187, 180, 0.15); border: 1px solid rgba(28, 187, 180, 0.3); color: #36d1dc; font-family: sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: space-between; user-select: none;">
-            <span>📄 Dokument geladen: <strong>{uploaded_pdf.name}</strong></span>
-            <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Klicken zum Kopieren des erfassten Rohtexts</span>
+            <span>📄 Document loaded: <strong>{uploaded_pdf.name}</strong></span>
+            <span style="font-size: 0.8rem; border: 1px solid rgba(54, 209, 220, 0.4); padding: 2px 6px; border-radius: 4px;">Click to copy extracted raw text</span>
         </div>
         <script>
         document.getElementById('copy-box').addEventListener('click', () => {{
             const text = decodeURIComponent("{encoded_text}");
             if (navigator.clipboard && navigator.clipboard.writeText) {{
                 navigator.clipboard.writeText(text).then(() => {{
-                    alert('Rohtext wurde in die Zwischenablage kopiert!');
+                    alert('Raw text copied to clipboard!');
                 }}).catch(err => {{
                     fallbackCopy(text);
                 }});
@@ -135,9 +135,9 @@ if uploaded_pdf is not None:
             textArea.select();
             try {{
                 document.execCommand('copy');
-                alert('Rohtext wurde in die Zwischenablage kopiert!');
+                alert('Raw text copied to clipboard!');
             }} catch (err) {{
-                alert('Kopieren fehlgeschlagen.');
+                alert('Copy failed.');
             }}
             document.body.removeChild(textArea);
         }}
@@ -147,23 +147,23 @@ if uploaded_pdf is not None:
         components.html(js_code, height=50)
         
     with col_show:
-        st.link_button("📄 Dokument anzeigen", data_url, use_container_width=True)
+        st.link_button("📄 View Document", data_url, use_container_width=True)
 
 # If we have scan results, show verification UI
 if "scan_results" in st.session_state and st.session_state.scan_results:
-    st.markdown("### 🛒 Erkannte Produkte verifizieren")
+    st.markdown("### 🛒 Verify Detected Products")
     
     # Load products table
     import pandas as pd
     products_df = pd.read_csv("data/products.csv")
     options = {row['id']: f"{row['name']} ({row['brand']}) - {row['price']:.2f} €" for _, row in products_df.iterrows()}
-    options[0] = "-- Kein passendes Produkt --"
+    options[0] = "-- No matching product --"
     
     form_data = []
     col1, col2, col3 = st.columns([4, 6, 2])
-    col1.markdown("**Erkannter Text**")
-    col2.markdown("**Katalog-Produkt**")
-    col3.markdown("**Menge**")
+    col1.markdown("**Detected Text**")
+    col2.markdown("**Catalog Product**")
+    col3.markdown("**Quantity**")
     
     for i, res in enumerate(st.session_state.scan_results):
         c_text, c_match, c_qty = st.columns([4, 6, 2])
@@ -172,7 +172,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         default_id = res['best_match_id'] if res['best_match_id'] in options else 0
         
         sel_id = c_match.selectbox(
-            f"Produkt {i}",
+            f"Product {i}",
             options=list(options.keys()),
             format_func=lambda x: options[x],
             index=list(options.keys()).index(default_id),
@@ -181,7 +181,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         )
         
         qty = c_qty.number_input(
-            f"Menge {i}",
+            f"Quantity {i}",
             min_value=1,
             value=int(res['quantity']),
             step=1,
@@ -190,7 +190,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
         )
         form_data.append((sel_id, qty))
         
-    if st.button("Artikel in den Warenkorb übernehmen", type="primary", use_container_width=True):
+    if st.button("Add items to cart", type="primary", use_container_width=True):
         if "cart" not in st.session_state:
             st.session_state.cart = {}
             
@@ -200,7 +200,7 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
                 st.session_state.cart[prod_id] = st.session_state.cart.get(prod_id, 0) + qty
                 added += 1
                 
-        st.success(f"{added} Artikel wurden in den Warenkorb gelegt!")
+        st.success(f"{added} items added to cart!")
         st.session_state.scan_results = []
         st.session_state.analyzed = False
         st.session_state.cart_source = "pdf"
@@ -208,10 +208,10 @@ if "scan_results" in st.session_state and st.session_state.scan_results:
 
 # --- WARENKORB (unter PDF Upload) ---
 st.markdown("---")
-st.markdown("### 🛒 Ihr aktueller Warenkorb")
+st.markdown("### 🛒 Your Current Cart")
 
 if "cart" not in st.session_state or not st.session_state.cart:
-    st.write("Der Warenkorb ist leer.")
+    st.write("The cart is empty.")
 else:
     products_df = pd.read_csv("data/products.csv")
     cart_rows = []
@@ -226,16 +226,16 @@ else:
             cart_rows.append({
                 "ID": prod_id,
                 "Name": row['name'],
-                "Marke": row['brand'],
-                "Menge": qty,
-                "Einzelpreis": f"{row['price']:.2f} €",
-                "Gesamtpreis": f"{total:.2f} €"
+                "Brand": row['brand'],
+                "Quantity": qty,
+                "Unit Price": f"{row['price']:.2f} €",
+                "Total Price": f"{total:.2f} €"
             })
             
     st.table(pd.DataFrame(cart_rows))
-    st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
+    st.markdown(f"### **Grand Total: {grand_total:.2f} €**")
     
     st.markdown("---")
-    if st.button("🗑️ Warenkorb leeren", key="clear_cart_pdf"):
+    if st.button("🗑️ Clear Cart", key="clear_cart_pdf"):
         st.session_state.cart = {}
         st.rerun()

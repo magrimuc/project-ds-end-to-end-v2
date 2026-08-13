@@ -6,12 +6,12 @@ import os
 if "cart" not in st.session_state:
     st.session_state.cart = {}
 
-st.markdown('<div class="main-header">🛒 Ihr Warenkorb</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Hier finden Sie alle gesammelten Artikel aus Ihren Materiallisten.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🛒 Your Cart</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Here you will find all the collected items from your school supply lists.</div>', unsafe_allow_html=True)
 
 if not st.session_state.cart:
     st.session_state.cart_source = None
-    st.write("Der Warenkorb ist leer.")
+    st.write("The cart is empty.")
 else:
     products_df = pd.read_csv("data/products.csv")
     cart_rows = []
@@ -26,38 +26,38 @@ else:
             cart_rows.append({
                 "ID": prod_id,
                 "Name": row['name'],
-                "Marke": row['brand'],
-                "Menge": qty,
-                "Einzelpreis": f"{row['price']:.2f} €",
-                "Gesamtpreis": f"{total:.2f} €"
+                "Brand": row['brand'],
+                "Quantity": qty,
+                "Unit Price": f"{row['price']:.2f} €",
+                "Total Price": f"{total:.2f} €"
             })
             
     st.table(pd.DataFrame(cart_rows))
-    st.markdown(f"### **Gesamtsumme: {grand_total:.2f} €**")
+    st.markdown(f"### **Grand Total: {grand_total:.2f} €**")
     
     st.markdown("---")
-    if st.button("🗑️ Warenkorb leeren", key="clear_cart_global"):
+    if st.button("🗑️ Clear Cart", key="clear_cart_global"):
         st.session_state.cart = {}
         st.session_state.cart_source = None
         st.rerun()
 
-# "+ Neuer Artikel" Popover under the cart
+# "+ New Item" Popover under the cart
 st.markdown("---")
 products_df = pd.read_csv("data/products.csv")
 options = {row['id']: f"{row['name']} ({row['brand']}) - {row['price']:.2f} €" for _, row in products_df.iterrows()}
-options[0] = "-- Kein passendes Produkt --"
+options[0] = "-- No matching product --"
 
-with st.popover("➕ Neuer Artikel", use_container_width=True):
-    st.markdown("### Artikel suchen & hinzufügen")
+with st.popover("➕ New Item", use_container_width=True):
+    st.markdown("### Search & Add Item")
     selected_prod = st.selectbox(
-        "Produkt auswählen:",
+        "Select product:",
         options=list(options.keys()),
         format_func=lambda x: options[x],
         key="manual_add_global_sel"
     )
-    qty_manual = st.number_input("Menge:", min_value=1, value=1, step=1, key="manual_add_global_qty")
-    if st.button("Hinzufügen", key="manual_add_global_btn", type="primary", use_container_width=True):
+    qty_manual = st.number_input("Quantity:", min_value=1, value=1, step=1, key="manual_add_global_qty")
+    if st.button("Add", key="manual_add_global_btn", type="primary", use_container_width=True):
         if selected_prod != 0:
             st.session_state.cart[selected_prod] = st.session_state.cart.get(selected_prod, 0) + qty_manual
-            st.toast("Artikel hinzugefügt!")
+            st.toast("Item added!")
             st.rerun()

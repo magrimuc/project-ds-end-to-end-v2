@@ -12,9 +12,9 @@ if "override_device_detect" not in st.session_state:
     st.session_state.override_device_detect = False
 
 # Page definitions (Custom titles and icons)
-foto_page = st.Page("foto.py", title="Foto", icon="📸")
+foto_page = st.Page("foto.py", title="Photo", icon="📸")
 pdf_page = st.Page("pages/pdf_upload.py", title="PDF", icon="📄")
-cart_page = st.Page("pages/cart.py", title="Warenkorb", icon="🛒")
+cart_page = st.Page("pages/cart.py", title="Cart", icon="🛒")
 pull_page = st.Page("pages/pull.py", title="Pull", icon="🔄")
 
 # Device Routing
