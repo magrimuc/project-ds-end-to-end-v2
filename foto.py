@@ -22,25 +22,78 @@ if "scan_results" not in st.session_state:
     st.session_state.scan_results = []
 if "raw_text" not in st.session_state:
     st.session_state.raw_text = ""
+if "raw_ocr_text" not in st.session_state:
+    st.session_state.raw_ocr_text = ""
+if "optimized_with_cl_info" not in st.session_state:
+    st.session_state.optimized_with_cl_info = ""
 if "data_url" not in st.session_state:
     st.session_state.data_url = None
 
 def reset_scan_state():
     st.session_state.scan_results = []
     st.session_state.raw_text = ""
+    st.session_state.raw_ocr_text = ""
+    st.session_state.optimized_with_cl_info = ""
     st.session_state.data_url = None
     if "last_analyzed_foto" in st.session_state:
         del st.session_state["last_analyzed_foto"]
 
 # App Header
-st.markdown('<div class="main-header">🎒 Schulbedarf Foto-Scanner</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">Optimiert für Mobilgeräte. Fotografieren Sie eine Materialliste ab, um sie direkt zu digitalisieren.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">🎒 School Supplies Photo Scanner</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Optimized for mobile devices. Take a photo of a school list to digitize it instantly.</div>', unsafe_allow_html=True)
 
-# Document view button placed at the top if a document is loaded
+# Document actions placed at the top if a document is loaded
 if st.session_state.get("data_url"):
-    st.link_button("📄 Dokument anzeigen", st.session_state.data_url, use_container_width=True)
+    col_doc, col_copier = st.columns([3, 7])
+    with col_doc:
+        st.link_button("📄 View Document", st.session_state.data_url, use_container_width=True)
+    with col_copier:
+        import urllib.parse
+        encoded_ocr = urllib.parse.quote(st.session_state.get("raw_ocr_text", ""))
+        encoded_opt = urllib.parse.quote(st.session_state.get("raw_text", ""))
+        encoded_cl = urllib.parse.quote(st.session_state.get("optimized_with_cl_info", ""))
+        
+        js_code = f"""
+        <div style="display: flex; gap: 8px; font-family: sans-serif; height: 38px; align-items: center;">
+            <button id="btn-ocr" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Raw Text (OCR)</button>
+            <button id="btn-opt" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Optimized Text</button>
+            <button id="btn-cl" style="flex: 1; height: 100%; border-radius: 4px; background-color: #262730; color: #fff; border: 1px solid #464855; cursor: pointer; font-size: 13px; font-weight: 500;">📋 Optimized + Cl Info</button>
+        </div>
+        <script>
+        function copyText(encodedText, successMsg) {{
+            const text = decodeURIComponent(encodedText);
+            if (navigator.clipboard && navigator.clipboard.writeText) {{
+                navigator.clipboard.writeText(text).then(() => {{
+                    alert(successMsg);
+                }}).catch(err => {{
+                    fallbackCopy(text, successMsg);
+                }});
+            }} else {{
+                fallbackCopy(text, successMsg);
+            }}
+        }}
+        function fallbackCopy(text, successMsg) {{
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {{
+                document.execCommand('copy');
+                alert(successMsg);
+            }} catch (err) {{
+                alert('Copy failed.');
+            }}
+            document.body.removeChild(textArea);
+        }}
+        document.getElementById('btn-ocr').addEventListener('click', () => copyText("{encoded_ocr}", "Raw OCR text copied to clipboard!"));
+        document.getElementById('btn-opt').addEventListener('click', () => copyText("{encoded_opt}", "Optimized raw text copied to clipboard!"));
+        document.getElementById('btn-cl').addEventListener('click', () => copyText("{encoded_cl}", "Optimized text with cluster info copied to clipboard!"));
+        </script>
+        """
+        import streamlit.components.v1 as components
+        components.html(js_code, height=45)
 
-st.markdown("### 1. Zettel abfotografieren oder Bild hochladen")
+st.markdown("### 1. Take a photo or upload an image")
 
 # Hide input controls if we already have scan results (until committed)
 if not st.session_state.scan_results:
@@ -60,15 +113,16 @@ if not st.session_state.scan_results:
                 try:
                     doc_bytes = uploaded_file.getvalue()
                     products_list = load_products("data/products.csv")
-                    raw_text = run_local_ocr(doc_bytes)
+                    raw_ocr = run_local_ocr(doc_bytes)
+                    st.session_state.raw_ocr_text = raw_ocr
                     
                     # Export raw text (before optimization) to a text file
                     txt_path = os.path.join(os.path.dirname(__file__), "data", "ocr_raw_text.txt")
                     with open(txt_path, "w", encoding="utf-8") as text_file:
-                        text_file.write(raw_text)
+                        text_file.write(raw_ocr)
                     
                     optimizer = TextOptimizer()
-                    raw_text = optimizer.optimize(raw_text)
+                    raw_text = optimizer.optimize(raw_ocr)
                     
                     st.session_state.raw_text = raw_text
                     parsed_items = parse_ocr_text(raw_text)
@@ -78,8 +132,10 @@ if not st.session_state.scan_results:
                     doc_level = predict_document_level(lines_for_level)
 
                     scan_results = []
+                    cl_info_lines = []
                     for item in parsed_items:
                         line_subject = predict_subject(item['raw_text'])
+                        cl_info_lines.append(f"Line: {item['raw_text']} | Level: {doc_level or 'Allgemein'} | Subject: {line_subject or 'Allgemein'}")
                         match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=line_subject)
                         best_match_id = match['product_id'] if match else 0
                         scan_results.append({
@@ -87,6 +143,7 @@ if not st.session_state.scan_results:
                             "quantity": item['quantity'],
                             "best_match_id": best_match_id
                         })
+                    st.session_state.optimized_with_cl_info = "\n".join(cl_info_lines)
                     scan_results.sort(key=lambda x: 1 if x['best_match_id'] == 0 else 0)
                     st.session_state.scan_results = scan_results
                     st.session_state.last_analyzed_foto = file_id
