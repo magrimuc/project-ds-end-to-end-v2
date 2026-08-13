@@ -1,5 +1,5 @@
-2026/08/13
 Die Klassifikationsgenauigkeit auf den Trainingsdaten liegt bei:
 Product matching: 94.15%
 Subject classification: 99.14%
 Level classification: 97.07%
+2026/08/13
