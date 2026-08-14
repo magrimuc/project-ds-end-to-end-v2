@@ -170,13 +170,15 @@ if st.session_state.scan_results:
     options[0] = "-- Kein passendes Produkt --"
     
     form_data = []
-    col1, col2, col3 = st.columns([4, 6, 2])
+    col1, col2, col3, col4 = st.columns([4, 5, 2, 1])
     col1.markdown("**Erkannter Text**")
     col2.markdown("**Katalog-Produkt**")
     col3.markdown("**Menge**")
+    col4.markdown("**Aktion**")
     
+    to_delete = None
     for i, res in enumerate(st.session_state.scan_results):
-        c_text, c_match, c_qty = st.columns([4, 6, 2])
+        c_text, c_match, c_qty, c_del = st.columns([4, 5, 2, 1])
         c_text.markdown(f"<div class='erkannter-text'>{res['raw_text']}</div>", unsafe_allow_html=True)
         
         default_id = res['best_match_id'] if res['best_match_id'] in options else 0
@@ -198,7 +200,15 @@ if st.session_state.scan_results:
             key=f"mobile_qty_{i}",
             label_visibility="collapsed"
         )
+        
+        if c_del.button("-", key=f"mobile_del_{i}", help="Zeile löschen", use_container_width=True):
+            to_delete = i
+            
         form_data.append((sel_id, qty))
+        
+    if to_delete is not None:
+        st.session_state.scan_results.pop(to_delete)
+        st.rerun()
         
     if st.button("Ausgewählte Artikel in den Warenkorb übernehmen", type="primary", use_container_width=True):
         added = 0
