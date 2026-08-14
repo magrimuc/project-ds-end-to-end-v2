@@ -1,6 +1,6 @@
 import os
 import pytest
-from src.matcher import load_products, find_best_match
+from src.matcher import load_products, find_best_match, split_by_colors
 
 @pytest.fixture
 def products():
@@ -19,5 +19,24 @@ def test_nlp_matching_robustness(products):
     assert match_umschlag["product_id"] == 1025  # Umschlag rot A5
     
     match_bleistift = find_best_match("Bleistift Faber-Castell", products)
-    assert match_bleistift is not None
-    assert match_bleistift["product_id"] == 1004  # Bleistift HB Grip 2001
+    assert bleistift_ok(match_bleistift)
+    
+def bleistift_ok(m):
+    return m is not None and m["product_id"] == 1004
+
+def test_split_by_colors(products):
+    # Line mentioning 3 colors
+    text = "4 Schnellhefter (rot, blau, grün)"
+    base_match = find_best_match(text, products)
+    
+    splits = split_by_colors(text, 4, base_match, products)
+    assert len(splits) == 3
+    
+    # Verify we got a red (1016), blue (1015) and green (1017) Schnellhefter A4
+    product_ids = [s["product_id"] for s in splits]
+    assert 1016 in product_ids
+    assert 1015 in product_ids
+    assert 1017 in product_ids
+    for s in splits:
+        assert s["quantity"] == 1
+

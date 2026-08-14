@@ -376,3 +376,94 @@ def predict_document_level(lines: list) -> str:
     except Exception as e:
         print(f"Error predicting document level: {e}")
     return None
+
+def split_by_colors(raw_text: str, quantity: int, base_match: dict, products: list) -> list:
+    """
+    Checks if colors are mentioned in raw_text.
+    For each color mentioned, finds a corresponding product of the same category and DIN size,
+    and returns a list of matched item dicts: [{'product_id': int, 'quantity': int}].
+    If no colors are mentioned or base_match is None/invalid, returns [{'product_id': base_match_id, 'quantity': quantity}].
+    """
+    base_id = base_match['product_id'] if (base_match and isinstance(base_match, dict)) else 0
+    if not base_id or not raw_text:
+        return [{"product_id": base_id, "quantity": quantity}]
+        
+    GERMAN_COLORS = ["rot", "blau", "grün", "gruen", "gelb", "lila", "schwarz", "weiß", "weiss", "orange", "hellblau", "dunkelblau", "transparent", "pink", "violett"]
+    
+    # Extract all colors mentioned in raw_text
+    found_colors = []
+    cleaned = re.sub(r'[^a-zA-ZäöüßÄÖÜ]', ' ', raw_text).lower()
+    words = cleaned.split()
+    for color in GERMAN_COLORS:
+        if color in words:
+            normalized = color
+            if color == "gruen": normalized = "grün"
+            if color == "weiss": normalized = "weiß"
+            if normalized not in found_colors:
+                found_colors.append(normalized)
+                
+    if not found_colors:
+        return [{"product_id": base_id, "quantity": quantity}]
+        
+    # Get base product object
+    base_prod = next((p for p in products if int(p['id']) == int(base_id)), None)
+    if not base_prod:
+        return [{"product_id": base_id, "quantity": quantity}]
+        
+    # Extract category keyword and DIN size of base product
+    def get_subcat_keyword(name: str) -> str:
+        name_lower = name.lower()
+        for kw in ["schnellhefter", "umschlag", "einband", "heft", "ordner", "eckspannmappe", "sammelmappe", "mappe"]:
+            if kw in name_lower:
+                return kw
+        return None
+        
+    def get_din_size(name: str) -> str:
+        m = re.search(r'\b(A[3-5])\b', name, re.IGNORECASE)
+        return m.group(1).upper() if m else None
+        
+    subcat = get_subcat_keyword(base_prod['name'])
+    din = get_din_size(base_prod['name'])
+    
+    results = []
+    for color in found_colors:
+        matched_prod = None
+        for p in products:
+            p_name = p['name'].lower()
+            p_desc = str(p.get('description', '')).lower()
+            
+            # Check subcategory
+            if subcat:
+                p_subcat = get_subcat_keyword(p['name'])
+                if p_subcat != subcat:
+                    # Allow matching umschlag and einband/schoner together
+                    if {subcat, p_subcat} <= {"umschlag", "einband", "schoner"}:
+                        pass
+                    else:
+                        continue
+                        
+            # Check DIN size
+            if din:
+                p_din = get_din_size(p['name'])
+                if p_din != din:
+                    continue
+                    
+            # Check color match
+            if re.search(rf'\b{color}\b', p_name) or re.search(rf'\b{color}\b', p_desc):
+                matched_prod = p
+                break
+                
+        if matched_prod:
+            results.append({
+                "product_id": int(matched_prod['id']),
+                "quantity": 1
+            })
+        else:
+            # Fall back to base product if color-specific version not found
+            results.append({
+                "product_id": int(base_id),
+                "quantity": 1
+            })
+            
+    return results
+

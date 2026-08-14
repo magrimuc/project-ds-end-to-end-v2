@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from src.ocr_engine import run_local_ocr
 from src.parser import parse_ocr_text
-from src.matcher import load_products, find_best_match, predict_subject, predict_document_level
+from src.matcher import load_products, find_best_match, predict_subject, predict_document_level, split_by_colors
 from src.text_optimizer import TextOptimizer
 
 # Initialize cart and scan state
@@ -138,12 +138,14 @@ if not st.session_state.scan_results:
                         current_subj = predict_subject(item['raw_text'], prev_subject=current_subj)
                         cl_info_lines.append(f"Line: {item['raw_text']} | Level: {doc_level or 'Allgemein'} | Subject: {current_subj or 'Allgemein'}")
                         match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=current_subj)
-                        best_match_id = match['product_id'] if match else 0
-                        scan_results.append({
-                            "raw_text": item['raw_text'],
-                            "quantity": item['quantity'],
-                            "best_match_id": best_match_id
-                        })
+                        
+                        splits = split_by_colors(item['raw_text'], item['quantity'], match, products_list)
+                        for split in splits:
+                            scan_results.append({
+                                "raw_text": item['raw_text'],
+                                "quantity": split['quantity'],
+                                "best_match_id": split['product_id']
+                            })
                     st.session_state.optimized_with_cl_info = "\n".join(cl_info_lines)
                     scan_results.sort(key=lambda x: 1 if x['best_match_id'] == 0 else 0)
                     st.session_state.scan_results = scan_results
