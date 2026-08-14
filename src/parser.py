@@ -61,17 +61,17 @@ def parse_ocr_text(text: str) -> list:
 
 def detect_grade_from_text(text: str) -> str:
     """
-    Detects the school grade ('grade' / 'Klassenstufe') from the first 8 lines of text.
+    Detects the school grade ('grade' / 'Klassenstufe') from the text.
     Keywords: 'Materialliste', 'Klasse' / 'Klassen' / 'Jahrgangsstufe' / 'Schuljahr' / 'Schuljahre'.
     Returns the grade (as a string/number) if found, otherwise 'keine'.
     """
     if not text:
         return "keine"
     
-    # Get the first 8 non-empty lines
-    lines = [line.strip() for line in text.splitlines() if line.strip()][:8]
+    # Get all non-empty lines
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
     
-    # Check if "Materialliste" is in the first 8 lines (case-insensitive)
+    # Check if "Materialliste" is in the text (case-insensitive)
     has_materialliste = any("materialliste" in line.lower() for line in lines)
     if not has_materialliste:
         return "keine"

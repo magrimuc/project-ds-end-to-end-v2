@@ -35,18 +35,20 @@ def test_grade_detection_on_downloads():
     print(f"\nDetected grades: {detected_grades}")
     print(f"Total detected: {len(detected_grades)}")
     
-    # Assert we can detect at least some grades (specifically 29 based on our run)
-    assert len(detected_grades) == 29
+    # Assert we can detect at least some grades (specifically 32 based on our run)
+    assert len(detected_grades) == 32
     
     # Verify specific known cases
     assert detected_grades["school_list_1.pdf"] == "1"
     assert detected_grades["school_list_2.pdf"] == "2"
     assert detected_grades["school_list_7.pdf"] == "2"
+    assert detected_grades["school_list_10.pdf"] == "1"
     assert detected_grades["school_list_13.pdf"] == "1"
     assert detected_grades["school_list_14.pdf"] == "5"
     assert detected_grades["school_list_16.pdf"] == "7"
     assert detected_grades["school_list_18.pdf"] == "10"
     assert detected_grades["school_list_23.pdf"] == "5"
     assert detected_grades["school_list_24.pdf"] == "11"
+
 
 
