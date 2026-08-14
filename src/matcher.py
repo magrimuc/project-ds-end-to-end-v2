@@ -330,16 +330,28 @@ def find_best_match(raw_text: str, products: list, threshold: float = 0.3, level
         
     return None
 
-def predict_subject(line: str) -> str:
+def predict_subject(line: str, prev_subject: str = None, threshold: float = 0.8) -> str:
     if _model_data is None or "subject_pipeline" not in _model_data:
-        return None
+        return prev_subject or "Allgemein"
     pipeline_subj = _model_data["subject_pipeline"]
     try:
-        pred_subject = pipeline_subj.predict([line])[0]
+        probs = pipeline_subj.predict_proba([line])[0]
+        max_idx = probs.argmax()
+        pred_subject = pipeline_subj.classes_[max_idx]
+        max_prob = probs[max_idx]
+        
+        if prev_subject is not None:
+            if pred_subject != prev_subject:
+                if max_prob >= threshold:
+                    return pred_subject
+                else:
+                    return prev_subject
+            else:
+                return pred_subject
         return pred_subject
     except Exception as e:
         print(f"Error predicting subject: {e}")
-    return None
+    return prev_subject or "Allgemein"
 
 def predict_document_level(lines: list) -> str:
     if not lines or _model_data is None or "level_pipeline" not in _model_data:

@@ -103,10 +103,11 @@ if uploaded_pdf is not None:
 
                 scan_results = []
                 cl_info_lines = []
+                current_subj = "Allgemein"
                 for item in parsed_items:
-                    line_subject = predict_subject(item['raw_text'])
-                    cl_info_lines.append(f"Line: {item['raw_text']} | Level: {doc_level or 'Allgemein'} | Subject: {line_subject or 'Allgemein'}")
-                    match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=line_subject)
+                    current_subj = predict_subject(item['raw_text'], prev_subject=current_subj)
+                    cl_info_lines.append(f"Line: {item['raw_text']} | Level: {doc_level or 'Allgemein'} | Subject: {current_subj or 'Allgemein'}")
+                    match = find_best_match(item['raw_text'], products_list, level=doc_level, subject=current_subj)
                     best_match_id = match['product_id'] if match else 0
                     scan_results.append({
                         "raw_text": item['raw_text'],
