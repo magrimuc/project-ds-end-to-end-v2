@@ -17,7 +17,7 @@ if os.path.exists(".env"):
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.ocr_engine import extract_text_from_pdf
-from src.parser import parse_ocr_text
+from src.parser import parse_ocr_text, detect_grade_from_text
 from src.text_optimizer import TextOptimizer
 from src.matcher import load_products, find_best_match, predict_subject, predict_document_level
 
@@ -70,6 +70,8 @@ def reset_pdf_state():
         del st.session_state["optimized_with_cl_info"]
     if "last_analyzed_pdf" in st.session_state:
         del st.session_state["last_analyzed_pdf"]
+    if "detected_grade" in st.session_state:
+        del st.session_state["detected_grade"]
     st.session_state.scan_results = []
 
 uploaded_pdf = st.file_uploader("PDF-Datei hochladen...", type=["pdf"], on_change=reset_pdf_state)
@@ -86,6 +88,9 @@ if uploaded_pdf is not None:
                 optimizer = TextOptimizer()
                 raw_text = optimizer.optimize(raw_ocr)
                 st.session_state.raw_text = raw_text
+                
+                # Detect grade from the first 8 lines
+                st.session_state.detected_grade = detect_grade_from_text(raw_ocr)
                 
                 products_list = load_products("data/products.csv")
                 parsed_items = []
@@ -175,6 +180,8 @@ if uploaded_pdf is not None:
 
 # If we have scan results, show verification UI
 if "scan_results" in st.session_state and st.session_state.scan_results:
+    if "detected_grade" in st.session_state:
+        st.write(f"ermittelte Klassenstufe {st.session_state.detected_grade}")
     st.markdown("### 🛒 Erkannte Produkte verifizieren")
     
     # Load products table
