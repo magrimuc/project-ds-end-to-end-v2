@@ -26,8 +26,17 @@ def get_transformer_model():
     global _transformer_model
     if _transformer_model is None:
         try:
-            # paraphrase-multilingual-MiniLM-L12-v2 is an excellent small multilingual/German model
-            _transformer_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+            # Check if fine-tuned model exists
+            fine_tuned_path = "src/fine_tuned_sentence_transformer"
+            if not os.path.exists(fine_tuned_path) and os.path.exists("project-ds-end-to-end-v2/src/fine_tuned_sentence_transformer"):
+                fine_tuned_path = "project-ds-end-to-end-v2/src/fine_tuned_sentence_transformer"
+                
+            if os.path.exists(fine_tuned_path):
+                print(f"Loading fine-tuned model from {fine_tuned_path}")
+                _transformer_model = SentenceTransformer(fine_tuned_path)
+            else:
+                # paraphrase-multilingual-MiniLM-L12-v2 is an excellent small multilingual/German model
+                _transformer_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
         except Exception as e:
             print(f"Failed to load sentence-transformer model: {e}")
     return _transformer_model
