@@ -1,9 +1,15 @@
 import os
+import sys
 import re
 import csv
 import pypdf
 import pandas as pd
 import difflib
+
+# Add root directory to sys.path so we can import src modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.text_optimizer import TextOptimizer
+
 
 def clean_text(text: str) -> str:
     """Cleans text for better comparison."""
@@ -313,10 +319,12 @@ def main():
     products_df = pd.read_csv(products_file)
     products = products_df.to_dict('records')
     
+    optimizer = TextOptimizer()
     records = []
     
     for line in lines:
-        props = parse_line_properties(line)
+        cleaned_line = optimizer.optimize_line(line)
+        props = parse_line_properties(cleaned_line)
         
         # User request: "DinA soll auf DinA4 und DinA5 matchen (für Umschläge und Hefte)"
         # So if generic dina is specified, we match BOTH product options
@@ -334,20 +342,20 @@ def main():
                 for score, prod in matches_found:
                     if score >= best_score - 1.5:
                         records.append({
-                            "raw_line": line,
+                            "raw_line": cleaned_line,
                             "product": prod['id'],
                             "amount": props['qty']
                         })
             else:
                 best_prod = matches_found[0][1]
                 records.append({
-                    "raw_line": line,
+                    "raw_line": cleaned_line,
                     "product": best_prod['id'],
                     "amount": props['qty']
                 })
         else:
             records.append({
-                "raw_line": line,
+                "raw_line": cleaned_line,
                 "product": 0,
                 "amount": 0
             })
